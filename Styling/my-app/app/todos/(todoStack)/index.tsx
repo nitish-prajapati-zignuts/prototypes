@@ -75,13 +75,12 @@ export default function AllTodo() {
 
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <View style={{ paddingHorizontal: 24 }}>
+            <View style={{ paddingHorizontal: 12,flex:1 }}>
                 <AppText size="hero" weight="bold">
                     Hi, Nitish
                 </AppText>
                 <AppText size="sm">Welcome back</AppText>
-            </View>
+            
 
             {/* 👇 FlatList Outside Header View */}
             <FlatList
@@ -114,32 +113,32 @@ export default function AllTodo() {
                     </Pressable>
                 )}
             />
-        </SafeAreaView>
+            </View>
     );
 }
 
 const styles = StyleSheet.create({
     list: {
         flex: 1,
-        marginTop: 16,
+        marginTop: 8,
     },
     container: {
         padding: 12,
     },
     card: {
         flex: 1,
-        margin: 8,
+        margin: 6,
         height: 120,
         borderRadius: 12,
         backgroundColor: '#f2f2f2',
-        padding: 12,
+        padding: 6,
         borderWidth: 1,
         borderColor: '#ccc',
         flexDirection: 'column',
         justifyContent: 'space-between'
     },
     text: {
-        fontSize: 16,
+        fontSize: 12,
         fontWeight: '600',
     },
     description: {

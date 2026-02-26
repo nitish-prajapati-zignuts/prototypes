@@ -3,7 +3,7 @@ import { Tabs } from "expo-router";
 
 export default function TodosLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs screenOptions={{ headerShown: true,headerTitle:"Todo's" }}>
       <Tabs.Screen
         name="(todoStack)"
         options={{
