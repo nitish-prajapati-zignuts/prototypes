@@ -3,7 +3,7 @@ import { Tabs } from "expo-router";
 
 export default function TodosLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: true,headerTitle:"Todo's" }}>
+    <Tabs screenOptions={{ headerShown: true }}>
       <Tabs.Screen
         name="(todoStack)"
         options={{
@@ -19,6 +19,7 @@ export default function TodosLayout() {
         name="completed"
         options={{
           title: "Completed",
+          
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="check-circle" size={size} color={color} />
           ),

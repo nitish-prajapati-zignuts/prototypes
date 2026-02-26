@@ -54,6 +54,11 @@ export const loginStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  error:{
+    color:'red',
+    fontSize:12,
+    width:'100%'
+  }
 });
 
 export const registerStyles = StyleSheet.create({})

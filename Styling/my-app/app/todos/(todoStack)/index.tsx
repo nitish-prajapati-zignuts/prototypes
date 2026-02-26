@@ -8,11 +8,9 @@ import {
     Pressable,
     StyleSheet,
     Text,
-    TextInput,
     View,
+    RefreshControl,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 
 type Task = {
     id: string;
@@ -31,118 +29,221 @@ type AssignedUserDetails = {
     role: string;
 };
 
-export function getStatus(status:string){
-    if(status === 'pending'){
-        return 'grey'
+// Refined status colors and helper
+export const getStatusStyles = (status: string) => {
+    switch (status.toLowerCase()) {
+        case 'pending':
+            return { bg: '#F3F4F6', text: '#6B7280' }; // Gray
+        case 'in-progress':
+            return { bg: '#EBF5FF', text: '#3B82F6' }; // Blue
+        case 'completed':
+            return { bg: '#ECFDF5', text: '#10B981' }; // Green
+        default:
+            return { bg: '#FFF7ED', text: '#F97316' }; // Orange
     }
-    else if(status === 'in-progress'){
-        return 'green'
-    }
-    else{
-        return 'orange'
-    }
-}
+};
 
 export default function AllTodo() {
     const [value, setValue] = useState<Task[]>([]);
-    const [isLoading,setLoading] = useState<boolean>(false)
+    const [isLoading, setLoading] = useState<boolean>(false);
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const url = Platform.OS === 'web' 
+                ? 'http://192.168.2.1:3001/api/tasks' 
+                : 'https://unvolcanic-alfonzo-nonverminous.ngrok-free.dev/api/tasks';
+            
+            const response = await fetch(url);
+            const res = await response.json();
+            setValue(res.tasksWithOwner);
+        } catch (error) {
+            console.log('ERROR:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true)
-                if (Platform.OS === 'web') {
-                    const response = await fetch('http://192.168.2.1:3001/api/tasks');
-                    const res = await response.json();
-                    setValue(res.tasksWithOwner);
-                } else {
-                    const response = await fetch(
-                        'https://unvolcanic-alfonzo-nonverminous.ngrok-free.dev/api/tasks',
-                    );
-
-                    const res = await response.json();
-                    setValue(res.tasksWithOwner);
-                    setLoading(false)
-                }
-            } catch (error) {
-                setLoading(false)
-                console.log('ERROR:', error);
-            }
-        };
-
         fetchData();
     }, []);
 
+    if (isLoading && value.length === 0) return <Loading />;
 
     return (
-            <View style={{ paddingHorizontal: 12,flex:1 }}>
-                <AppText size="hero" weight="bold">
-                    Hi, Nitish
-                </AppText>
-                <AppText size="sm">Welcome back</AppText>
-            
+        <View style={styles.screen}>
+            <View style={styles.header}>
+                <View>
+                    <AppText size="hero" weight="bold" style={styles.welcomeText}>
+                        Hi, Nitish
+                    </AppText>
+                    <AppText size="sm" style={styles.subText}>You have {value.length} tasks today</AppText>
+                </View>
+                <View style={styles.avatarPlaceholder}>
+                    <Text style={styles.avatarText}>N</Text>
+                </View>
+            </View>
 
-            {/* 👇 FlatList Outside Header View */}
             <FlatList
                 data={value}
                 numColumns={Platform.OS === "web" ? 2 : 1}
                 keyExtractor={(item) => item.id}
-                style={styles.list}
-                bounces
-                contentContainerStyle={styles.container}
-                //columnWrapperStyle={{ justifyContent: 'space-between' }}
-                renderItem={({ item }) => (
-                    <Pressable onPress={() => router.push(`/todos/${item.id}`)}>
-                    <View style={styles.card}>
-                        <View style={{display:"flex", flexDirection:'row',justifyContent:'space-between'}}>
-                            <View><Text numberOfLines={1} style={styles.text}>
-                                {item.title}
-                            </Text>
-                                <Text numberOfLines={1} style={styles.description}>
-                                    {item.description}
-                                </Text>
+                contentContainerStyle={styles.listContainer}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl refreshing={isLoading} onRefresh={fetchData} />
+                }
+                renderItem={({ item }) => {
+                    const statusStyle = getStatusStyles(item.status);
+                    return (
+                        <Pressable 
+                            onPress={() => router.push(`/todos/${item.id}`)}
+                            style={({ pressed }) => [
+                                styles.card,
+                                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] }
+                            ]}
+                        >
+                            <View style={styles.cardHeader}>
+                                <View style={styles.titleContainer}>
+                                    <Text numberOfLines={1} style={styles.taskTitle}>
+                                        {item.title}
+                                    </Text>
+                                    <Text numberOfLines={2} style={styles.description}>
+                                        {item.description}
+                                    </Text>
+                                </View>
+                                <View style={[styles.badge, { backgroundColor: statusStyle.bg }]}>
+                                    <Text style={[styles.badgeText, { color: statusStyle.text }]}>
+                                        {item.status}
+                                    </Text>
+                                </View>
                             </View>
-                            <View><Text  style={{backgroundColor:getStatus(item.status),padding:12,borderRadius:12}}>{item.status}</Text></View>
-                        </View>
 
-                        <View>
-                            <Text>Assigned To:- </Text>
-                            <Text >{item.assignedTo.charAt(0).toUpperCase() + item.assignedTo.slice(1).toLowerCase()}</Text>
-                        </View>
-                    </View>
-                    </Pressable>
-                )}
+                            <View style={styles.cardFooter}>
+                                <View style={styles.assigneeContainer}>
+                                    <View style={styles.dot} />
+                                    <Text style={styles.assigneeLabel}>Assigned to: </Text>
+                                    <Text style={styles.assigneeName}>
+                                        {item.assignedTo.charAt(0).toUpperCase() + item.assignedTo.slice(1).toLowerCase()}
+                                    </Text>
+                                </View>
+                            </View>
+                        </Pressable>
+                    );
+                }}
             />
-            </View>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    list: {
+    screen: {
         flex: 1,
-        marginTop: 8,
+        backgroundColor: '#FFFFFF',
+        paddingTop: 20,
     },
-    container: {
-        padding: 12,
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginBottom: 15,
+    },
+    welcomeText: {
+        letterSpacing: -0.5,
+    },
+    subText: {
+        color: '#6B7280',
+        marginTop: 2,
+    },
+    avatarPlaceholder: {
+        width: 45,
+        height: 45,
+        borderRadius: 22.5,
+        backgroundColor: '#F3F4F6',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+    },
+    avatarText: {
+        fontWeight: 'bold',
+        color: '#374151',
+    },
+    listContainer: {
+        paddingHorizontal: 16,
+        paddingBottom: 40,
     },
     card: {
-        flex: 1,
-        margin: 6,
-        height: 120,
-        borderRadius: 12,
-        backgroundColor: '#f2f2f2',
-        padding: 6,
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
+        marginHorizontal: 4,
+        // Shadow for iOS
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        // Elevation for Android
+        elevation: 2,
         borderWidth: 1,
-        borderColor: '#ccc',
-        flexDirection: 'column',
-        justifyContent: 'space-between'
+        borderColor: '#F3F4F6',
     },
-    text: {
-        fontSize: 12,
-        fontWeight: '600',
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+    titleContainer: {
+        flex: 1,
+        marginRight: 10,
+    },
+    taskTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#111827',
+        marginBottom: 4,
     },
     description: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 13,
+        color: '#6B7280',
+        lineHeight: 18,
+    },
+    badge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    badgeText: {
+        fontSize: 11,
+        fontWeight: '700',
+        textTransform: 'uppercase',
+    },
+    cardFooter: {
+        marginTop: 15,
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: '#F9FAFB',
+    },
+    assigneeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    dot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: '#3B82F6',
+        marginRight: 8,
+    },
+    assigneeLabel: {
+        fontSize: 12,
+        color: '#9CA3AF',
+    },
+    assigneeName: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#4B5563',
     },
 });
