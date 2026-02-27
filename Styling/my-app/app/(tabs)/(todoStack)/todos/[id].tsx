@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Text,
@@ -7,7 +7,9 @@ import {
   StyleSheet,
   ScrollView,
   SafeAreaView,
+  Pressable,
 } from "react-native";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface Task {
   id: string;
@@ -23,9 +25,11 @@ interface Task {
 
 export default function SingleViewTodo() {
   const { id } = useLocalSearchParams();
+  const router = useRouter();
+
   const [isLoading, setLoading] = useState(false);
   const [task, setTask] = useState<Task | null>(null);
-  const [error,setError] = useState("")
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -37,17 +41,15 @@ export default function SingleViewTodo() {
           `https://unvolcanic-alfonzo-nonverminous.ngrok-free.dev/api/tasks/${id}`
         );
 
-        if(resp.status !== 200){
-            setError(resp.statusText)
-            //console.log(resp.statusText)
-            return
+        if (!resp.ok) {
+          setError("Unable to fetch task.");
+          return;
         }
 
         const data = await resp.json();
-        
         setTask(data);
-      } catch (error) {
-        console.error("Error fetching task:", error);
+      } catch (err) {
+        setError("Something went wrong.");
       } finally {
         setLoading(false);
       }
@@ -56,52 +58,73 @@ export default function SingleViewTodo() {
     fetchData();
   }, [id]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
       case "completed":
-        return "#4CAF50";
+        return { bg: "#E8F5E9", text: "#2E7D32" };
       case "in-progress":
-        return "#FF9800";
+        return { bg: "#FFF3E0", text: "#EF6C00" };
       default:
-        return "#F44336";
+        return { bg: "#FFEBEE", text: "#C62828" };
     }
   };
 
   if (isLoading) {
     return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#6750A4" />
       </View>
     );
   }
 
-  if (!task) {
+  if (error || !task) {
     return (
-      <View style={styles.loaderContainer}>
-        <Text style={styles.errorText}>No Task Found</Text>
+      <View style={styles.center}>
+        <MaterialIcons name="error-outline" size={40} color="#999" />
+        <Text style={styles.errorText}>
+          {error || "No Task Found"}
+        </Text>
       </View>
     );
   }
+
+  const statusStyle = getStatusStyle(task.status);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
+    <SafeAreaView style={styles.safeArea}>
+      {/* HEADER */}
+      <View style={styles.header}>
+        <Pressable onPress={() => router.back()} style={styles.backBtn}>
+          <MaterialIcons name="arrow-back" size={22} color="#1C1B1F" />
+        </Pressable>
+       
+      </View>
+
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.card}>
           <Text style={styles.title}>{task.title}</Text>
 
-          {/* Corrected dynamic style implementation */}
           <View
             style={[
               styles.badge,
-              { backgroundColor: getStatusColor(task.status) },
+              { backgroundColor: statusStyle.bg },
             ]}
           >
-            <Text style={styles.badgeText}>{task.status}</Text>
+            <Text
+              style={[
+                styles.badgeText,
+                { color: statusStyle.text },
+              ]}
+            >
+              {task.status}
+            </Text>
           </View>
 
           <View style={styles.section}>
             <Text style={styles.label}>Description</Text>
-            <Text style={styles.value}>{task.description || "No description provided."}</Text>
+            <Text style={styles.value}>
+              {task.description || "No description provided."}
+            </Text>
           </View>
 
           <View style={styles.section}>
@@ -113,7 +136,9 @@ export default function SingleViewTodo() {
             <Text style={styles.label}>Assigned To</Text>
             <Text style={styles.value}>
               {task.assignedUserDetails?.email ?? "Unassigned"}
-              {task.assignedUserDetails?.role ? ` (${task.assignedUserDetails.role})` : ""}
+              {task.assignedUserDetails?.role
+                ? ` (${task.assignedUserDetails.role})`
+                : ""}
             </Text>
           </View>
         </View>
@@ -123,38 +148,60 @@ export default function SingleViewTodo() {
 }
 
 const styles = StyleSheet.create({
-  loaderContainer: {
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#F8F5FF",
+  },
+  center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
+  },
+  header: {
+   padding:8,
+   
+  },
+  backBtn: {
+    padding: 6,
+    backgroundColor:'whote'
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1C1B1F",
   },
   container: {
     padding: 20,
   },
   card: {
     backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    padding: 22,
+    borderRadius: 20,
+    elevation: 3,
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: "#1a1a1a",
-    marginBottom: 4,
+  },
+  badge: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 50,
+    marginTop: 10,
+  },
+  badgeText: {
+    fontWeight: "600",
+    fontSize: 12,
+    textTransform: "capitalize",
   },
   section: {
-    marginTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
-    paddingTop: 10,
+    marginTop: 24,
   },
   label: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
     color: "#888",
     textTransform: "uppercase",
@@ -162,26 +209,13 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 16,
-    marginTop: 4,
+    marginTop: 6,
     color: "#333",
     lineHeight: 22,
-  },
-  badge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 14,
-    paddingVertical: 4,
-    borderRadius: 20,
-    marginTop: 8,
-    marginBottom: 12,
-  },
-  badgeText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 12,
-    textTransform: "capitalize",
   },
   errorText: {
     fontSize: 16,
     color: "#666",
+    marginTop: 10,
   },
 });

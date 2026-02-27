@@ -15,6 +15,7 @@ import {
     ActivityIndicator,
 } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Task = {
     id: string;
@@ -162,7 +163,7 @@ export default function Edit() {
 
     return (
         <>
-            <View>
+            <SafeAreaView>
                 <Modal
                     visible={visible}
                     animationType="slide"
@@ -230,7 +231,7 @@ export default function Edit() {
                         </View>
                     </View>
                 </Modal>
-            </View>
+            </SafeAreaView>
             <View style={styles.screen}>
                 <View style={styles.header}>
                     <AppText className="lg">Your Tasks</AppText>

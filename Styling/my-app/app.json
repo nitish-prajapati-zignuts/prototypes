@@ -7,10 +7,16 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.my-app"
+      "bundleIdentifier": "com.anonymous.my-app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to show nearby stores.",
+        "NSLocationAlwaysUsageDescription": "We track your route even when the app is closed.",
+        "NSCameraUsageDescription":"A message that tells the user why the app is requesting access to the device’s camera.",
+        "NSMicrophoneUsageDescription":"A message that tells the user why the app is requesting access to the device’s microphone.",
+        "UIBackgroundModes":["location"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,9 +25,16 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.myapp"
+      "package": "com.anonymous.myapp",
+      "permissions": [
+       "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "FOREGROUND_SERVICE",
+        "ACCESS_BACKGROUND_LOCATION",
+        "CAMERA",
+        "RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",
@@ -39,6 +52,21 @@
           "dark": {
             "backgroundColor": "#000000"
           }
+        }
+        
+      ],
+      [
+        "expo-location",{
+          "locationAlwaysPermission":"Allow $(PRODUCT_NAME) to use your location",
+          "isAndroidBackgroundLocationEnabled":true
+        }
+      ],
+      [
+          "expo-camera",{
+          "cameraPermission":"Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission":"Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid":true,
+          "barcodeScannerEnables":true
         }
       ]
     ],
