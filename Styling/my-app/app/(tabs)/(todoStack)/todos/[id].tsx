@@ -84,6 +84,9 @@ export default function SingleViewTodo() {
         <Text style={styles.errorText}>
           {error || "No Task Found"}
         </Text>
+        <View>
+          <Text style={[styles.backBtn,{backgroundColor:'red',color:'white',borderRadius:12,padding:12}]} onPress={() => router.back()}>Go Back</Text>
+        </View>
       </View>
     );
   }
@@ -92,7 +95,6 @@ export default function SingleViewTodo() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* HEADER */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <MaterialIcons name="arrow-back" size={22} color="#1C1B1F" />

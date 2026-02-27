@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
+import { setItem } from '@/components/store';
 
 export default function LoginScreen() {
   const user = useState({
@@ -102,7 +103,7 @@ export default function LoginScreen() {
 
     console.log(result);
     setLoading(false);
-
+    setItem(JSON.stringify(result))
     if (response.ok) {
       router.replace('/todos');
     }

@@ -1,5 +1,6 @@
 import AppText from '@/components/AppText';
 import Loading from '@/components/Loading';
+import { getItem } from '@/components/store';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -43,9 +44,12 @@ export const getStatusStyles = (status: string) => {
     }
 };
 
-export default function AllTodo() {
+export default  function AllTodo() {
     const [value, setValue] = useState<Task[]>([]);
     const [isLoading, setLoading] = useState<boolean>(false);
+    const [userDetails,setUserDetails] = useState("")
+    
+
 
     const fetchData = async () => {
         try {
@@ -64,8 +68,20 @@ export default function AllTodo() {
         }
     };
 
+    const setData = async () => {
+        const dt = await getItem()
+           const user = JSON.parse(dt!)
+           console.log(user.data.name);
+           
+        setUserDetails(user.data.name)
+    }
+    
+
     useEffect(() => {
         fetchData();
+        setData()
+
+     
     }, []);
 
     if (isLoading && value.length === 0) return <Loading />;
@@ -75,7 +91,7 @@ export default function AllTodo() {
             <View style={styles.header}>
                 <View>
                     <AppText size="hero" weight="bold" style={styles.welcomeText}>
-                        Hi, Nitish
+                        Hi, {userDetails}
                     </AppText>
                     <AppText size="sm" style={styles.subText}>You have {value.length} tasks today</AppText>
                 </View>
