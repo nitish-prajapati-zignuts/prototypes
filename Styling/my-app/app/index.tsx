@@ -18,12 +18,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import { setItem } from '@/components/store';
+import { useAuth } from '@/store/AuthContext/AuthContext';
 
 export default function LoginScreen() {
-  const user = useState({
-    username: '',
-    password: '',
-  });
+ 
+
 
   useEffect(() => {
     const fetchPermissions = async () => {
@@ -77,10 +76,21 @@ export default function LoginScreen() {
     fetchPermissions();
   }, []);
 
+  const {user,login} = useAuth()
+
+
+  useEffect(() => {
+    if(user !== null){
+      router.replace("/(tabs)/(todoStack)/todos")
+    }
+  },[user])
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+
 
   const handleSubmit = async () => {
     if (!username || !password) {
@@ -103,7 +113,7 @@ export default function LoginScreen() {
 
     console.log(result);
     setLoading(false);
-    setItem(JSON.stringify(result))
+    login(result)
     if (response.ok) {
       router.replace('/todos');
     }

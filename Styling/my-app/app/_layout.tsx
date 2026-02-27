@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import * as Notifications from 'expo-notifications'
 import { Alert, Platform } from "react-native";
 import Constants from "expo-constants"
+import { AuthProvider, useAuth } from "@/store/AuthContext/AuthContext";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -18,6 +19,7 @@ export default function RootLayout() {
   useEffect(() => {
     registerForPushNotificationAsync();
   },[])
+
 
   async function registerForPushNotificationAsync(){
       //Check existing Status
@@ -56,6 +58,7 @@ export default function RootLayout() {
 
   }
   return (
+    <AuthProvider>
     <Stack
       screenOptions={{
         headerShown:false
@@ -66,6 +69,7 @@ export default function RootLayout() {
       <Stack.Screen name="register" options={{headerShown:false}} />
       <Stack.Screen name="(tabs)" options={{headerShown:false,}} />
     </Stack>
+    </AuthProvider>
   )
  
 }

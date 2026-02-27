@@ -1,6 +1,7 @@
 import AppText from '@/components/AppText';
 import Loading from '@/components/Loading';
 import { getItem } from '@/components/store';
+import { useAuth } from '@/store/AuthContext/AuthContext';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -48,7 +49,9 @@ export default  function AllTodo() {
     const [value, setValue] = useState<Task[]>([]);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [userDetails,setUserDetails] = useState("")
-    
+    const {user} = useAuth()
+
+    console.log("Store User",user)
 
 
     const fetchData = async () => {
