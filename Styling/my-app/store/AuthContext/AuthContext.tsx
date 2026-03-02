@@ -6,6 +6,8 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import * as SecureStore from 'expo-secure-store'
+import SecureStorage from "@/services/SecureStorage";
 
 type User = {
   id: string;
@@ -18,6 +20,7 @@ type AuthContextType = {
   user: User | null;
   login: (userData: User) => Promise<void>;
   logout: () => Promise<void>;
+  getUser :() => Promise<string | null>
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,21 +36,29 @@ export const AuthProvider = ({
 
   const login = async (userData: User) => {
     setUser(userData);
-    await AsyncStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(userData)
-    );
+    // await AsyncStorage.setItem(
+    //   STORAGE_KEY,
+    //   JSON.stringify(userData)
+    // );
+    //await SecureStore.setItemAsync(STORAGE_KEY,JSON.stringify(userData))
+    SecureStorage.setItem(STORAGE_KEY,JSON.stringify(userData))
   };
 
   const logout = async () => {
     setUser(null);
-    await AsyncStorage.removeItem(STORAGE_KEY);
+    //await SecureStore.deleteItemAsync(STORAGE_KEY)
+    SecureStorage.removeItem(STORAGE_KEY)
   };
+
+  const getUser = async () => {
+    return SecureStorage.getItem(STORAGE_KEY)
+  }
 
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const storedUser = await AsyncStorage.getItem(STORAGE_KEY);
+        //const storedUser = await SecureStore.getItemAsync(STORAGE_KEY)
+        const storedUser = await SecureStorage.getItem(STORAGE_KEY)
         if (storedUser) {
           setUser(JSON.parse(storedUser));
         }
@@ -64,6 +75,7 @@ export const AuthProvider = ({
       user,
       login,
       logout,
+      getUser
     }),
     [user]
   );

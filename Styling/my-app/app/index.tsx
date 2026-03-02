@@ -30,11 +30,11 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const login = useAuthStore((state:any) => state.login)
+  //const login = useAuthStore((state:any) => state.login)
   //const {login} = useAuthRecoilState()
   const bannerWidth = responsive.wp(80);
   const bannerHeight = responsive.getARHeight(bannerWidth, 16 / 9);
-
+  const {login} = useAuth()
   const handleSubmit = async () => {
     if (!username || !password) {
       setError("Please Enter the Required Details.")
@@ -59,7 +59,7 @@ export default function LoginScreen() {
     if(response.ok){
       //login(result.data,"auth-token")
       //Recoil Data 
-      login(result.data,"auth-token")
+      login(result.data)
       router.replace("/todos")
     }
   }

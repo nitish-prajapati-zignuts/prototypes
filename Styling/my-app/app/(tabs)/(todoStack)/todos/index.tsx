@@ -57,9 +57,11 @@ export default  function AllTodo() {
     //console.log("Store User",user)
 
     //Zustand Auth Store
-    const zuser = useAuthStore((state) => state.user)
-    console.log("Zustand User",zuser)
+    //const zuser = useAuthStore((state) => state.user)
+    //console.log("Zustand User",zuser)
+    const {getUser} = useAuth()
 
+    console.log(getUser)
     //const auth = useRecoilValue(authState)
 
     //console.log("Recoil",auth)
@@ -104,7 +106,7 @@ export default  function AllTodo() {
             <View style={styles.header}>
                 <View>
                     <AppText size="hero" weight="bold" style={styles.welcomeText}>
-                        Hi, {zuser.email}
+                        Hi, {""}
                     </AppText>
                     <AppText size="sm" style={styles.subText}>You have {value.length} tasks today</AppText>
                 </View>
