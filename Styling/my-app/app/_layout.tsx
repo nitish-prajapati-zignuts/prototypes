@@ -1,10 +1,10 @@
 import { Stack } from "expo-router";
-import LoginScreen from ".";
 import { useEffect } from "react";
 import * as Notifications from 'expo-notifications'
 import { Alert, Platform } from "react-native";
 import Constants from "expo-constants"
 import { AuthProvider, useAuth } from "@/store/AuthContext/AuthContext";
+import { RecoilRoot } from "recoil";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,

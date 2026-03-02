@@ -1,7 +1,9 @@
 import AppText from '@/components/AppText';
 import Loading from '@/components/Loading';
 import { getItem } from '@/components/store';
+import { authState } from '@/Recoil/useRecoilAuthState';
 import { useAuth } from '@/store/AuthContext/AuthContext';
+import { useAuthStore } from '@/zustand/useAuthStore';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -13,6 +15,7 @@ import {
     View,
     RefreshControl,
 } from 'react-native';
+import { useRecoilValue } from 'recoil';
 
 type Task = {
     id: string;
@@ -49,10 +52,17 @@ export default  function AllTodo() {
     const [value, setValue] = useState<Task[]>([]);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [userDetails,setUserDetails] = useState("")
-    const {user} = useAuth()
+    //const {user} = useAuth()
 
-    console.log("Store User",user)
+    //console.log("Store User",user)
 
+    //Zustand Auth Store
+    const zuser = useAuthStore((state) => state.user)
+    console.log("Zustand User",zuser)
+
+    //const auth = useRecoilValue(authState)
+
+    //console.log("Recoil",auth)
 
     const fetchData = async () => {
         try {
@@ -94,7 +104,7 @@ export default  function AllTodo() {
             <View style={styles.header}>
                 <View>
                     <AppText size="hero" weight="bold" style={styles.welcomeText}>
-                        Hi, {userDetails}
+                        Hi, {zuser.email}
                     </AppText>
                     <AppText size="sm" style={styles.subText}>You have {value.length} tasks today</AppText>
                 </View>

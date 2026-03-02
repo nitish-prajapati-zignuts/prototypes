@@ -20,22 +20,48 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import { useAuth } from "@/store/AuthContext/AuthContext";
 import useResponsive from "@/hooks/useResponsive";
+import { useAuthStore } from "@/zustand/useAuthStore";
+import { useAuthRecoilState } from "@/Recoil/Actions";
 
 export default function LoginScreen() {
   const responsive = useResponsive();
   const styles = useLoginStyles();
-  const { login } = useAuth();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const login = useAuthStore((state:any) => state.login)
+  //const {login} = useAuthRecoilState()
   const bannerWidth = responsive.wp(80);
   const bannerHeight = responsive.getARHeight(bannerWidth, 16 / 9);
 
-  function handleSubmit(event: GestureResponderEvent): void {
-    throw new Error("Function not implemented.");
+  const handleSubmit = async () => {
+    if (!username || !password) {
+      setError("Please Enter the Required Details.")
+      return
+    }
+    setLoading(true)
+    const response = await fetch(
+      'https://unvolcanic-alfonzo-nonverminous.ngrok-free.dev/api/login',
+      {
+        method:"POST",
+        body:JSON.stringify({
+          email:username,
+          password:password
+        })
+      },
+    );
+
+    const result = await response.json()
+
+    console.log(result)
+    setLoading(false)
+    if(response.ok){
+      //login(result.data,"auth-token")
+      //Recoil Data 
+      login(result.data,"auth-token")
+      router.replace("/todos")
+    }
   }
 
   return (
@@ -51,9 +77,7 @@ export default function LoginScreen() {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.card}>
-              {/* Optional: Branding with Aspect Ratio */}
-              {/* <View style={{ width: bannerWidth, height: bannerHeight, backgroundColor: '#841584', borderRadius: 10, marginBottom: 20 }} /> */}
-
+           
               <Text style={styles.title}>Welcome Back</Text>
               <Text style={styles.subtitle}>Sign in to continue</Text>
 
