@@ -1,0 +1,20 @@
+{
+  "registration": {
+    "title": "Registro",
+    "submit": "Enviar",
+    "placeholders": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "address": "Dirección",
+      "city": "Ciudad",
+      "password": "Contraseña"
+    },
+    "validation": {
+      "required": "El campo {{field}} es obligatorio",
+      "invalidEmail": "Por favor, introduce un correo válido",
+      "minLength": "El campo {{field}} debe tener al menos {{count}} caracteres"
+    }
+  }
+}
