@@ -28,7 +28,7 @@ async function loginHandler(req: NextApiRequest, res: NextApiResponse) {
         const token = jwt.sign(
             { id: user._id },
             process.env.JWT_SECRET_KEY!,
-            { expiresIn: "1h" }
+            { expiresIn: "7d" }
         );
 
         return new ApiResponse(res, "Login successful", { token }).send(200);

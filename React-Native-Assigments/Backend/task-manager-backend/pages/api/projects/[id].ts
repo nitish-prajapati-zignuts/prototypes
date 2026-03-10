@@ -3,8 +3,10 @@ import { ApiResponse } from "@/app/Utils/ApiResponse";
 import { withAuth } from "@/app/Utils/withAuth";
 import { withDB } from "@/app/Utils/withDB";
 import { NextApiRequest, NextApiResponse } from "next";
+import { StringDecoder } from "node:string_decoder";
 
-async function getProjectById(req: NextApiRequest, res: NextApiResponse) {
+async function getProjectById(req: NextApiRequest, res: NextApiResponse, userId: string) {
+    console.log(userId)
     try {
         if (req.method === "GET") {
             const { id } = req.query;
@@ -13,7 +15,7 @@ async function getProjectById(req: NextApiRequest, res: NextApiResponse) {
                 return new ApiResponse(res, "Project ID is required").send(400);
             }
 
-            const project = await Project.findById(id).where({ isDeleted: false });
+            const project = await Project.findById(id).where({ isDeleted: false, userId: userId });
 
             if (!project) {
                 return new ApiResponse(res, "Project not found").send(404);
@@ -28,7 +30,7 @@ async function getProjectById(req: NextApiRequest, res: NextApiResponse) {
                 return new ApiResponse(res, "Project ID is required").send(400);
             }
 
-            const project = await Project.findById(id).where({ isDeleted: false });
+            const project = await Project.findById(id).where({ isDeleted: false, userId: userId });
             if (project) {
                 await Project.findByIdAndUpdate(id, { isDeleted: true });
             }
@@ -47,7 +49,7 @@ async function getProjectById(req: NextApiRequest, res: NextApiResponse) {
                 return new ApiResponse(res, "Title and Description are required").send(400);
             }
 
-            const project = await Project.findByIdAndUpdate(id, { title, description });
+            const project = await Project.findByIdAndUpdate(id, { title, description }).where({ isDeleted: false, userId: userId });
 
             if (!project) {
                 return new ApiResponse(res, "Project not found").send(404);

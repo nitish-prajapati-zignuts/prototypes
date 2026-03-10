@@ -3,6 +3,7 @@ import { withAuth } from "@/app/Utils/withAuth";
 import { ApiResponse } from "@/app/Utils/ApiResponse";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Project } from "@/app/models/ProjectSchema";
+import { Task } from "@/app/models/TasksSchema";
 
 async function getProjectsHandler(
     req: NextApiRequest,
@@ -49,7 +50,8 @@ async function getProjectsHandler(
         .skip(skip)
         .limit(limitNumber).where({ isDeleted: false });
 
-    /* Counting Total Number of Project Assigment to User */
+
+    /* Counting Total Number of Project Assigment to User*/
     const total = await Project.countDocuments(filter).where({ isDeleted: false });
 
     /* Sending Response to User*/
