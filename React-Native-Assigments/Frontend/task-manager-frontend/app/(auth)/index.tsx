@@ -108,6 +108,14 @@ export default function Login() {
               <Text style={AuthStyles.linkText}>Register</Text>
             </Text>
 
+            <Text
+              onPress={() => router.replace("/(projects)")}
+              style={AuthStyles.footerText}
+            >
+              Go to Projects?{" "}
+              <Text style={AuthStyles.linkText}>Projects</Text>
+            </Text>
+
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
