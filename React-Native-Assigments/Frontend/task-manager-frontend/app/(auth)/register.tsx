@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
 import { AuthStyles } from "@/styles/AuthStyles";
+import { router } from "expo-router";
 
 type FormData = {
   name: string;
@@ -114,7 +115,7 @@ export default function Register() {
               <Text style={AuthStyles.buttonText}>Register</Text>
             </TouchableOpacity>
 
-            <Text style={AuthStyles.footerText}>
+            <Text onPress={() => router.replace("/(auth)")} style={AuthStyles.footerText}>
               Already have an account?{" "}
               <Text style={AuthStyles.linkText}>Login</Text>
             </Text>

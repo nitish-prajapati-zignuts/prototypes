@@ -3,9 +3,9 @@ import { Dimensions, PixelRatio, StyleSheet } from "react-native";
 const { width } = Dimensions.get("window");
 const BASE_WIDTH = 375;
 
-const scale = (size: number) => (width / BASE_WIDTH) * size;
+export const scale = (size: number) => (width / BASE_WIDTH) * size;
 
-const responsiveSize = (size: number) =>
+export const responsiveSize = (size: number) =>
   PixelRatio.roundToNearestPixel(scale(size));
 
 export const AuthStyles = StyleSheet.create({

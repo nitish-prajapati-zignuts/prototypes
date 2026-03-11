@@ -6,10 +6,9 @@ export default function RootLayout() {
 
     return (
         <>
-            <Stack>
+            <Stack screenOptions={{ headerShown: false,title:"" }}>
                 <Stack.Screen name="index" options={{ headerShown: false }} />
                 <Stack.Screen name='register' options={{ headerShown: false }} />
-                {/* <Stack.Screen name="(auth)/register" options={{ title: 'Register' }} /> */}
             </Stack>
             <StatusBar style="auto" />
         </>

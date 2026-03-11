@@ -6,7 +6,7 @@ export default function RootLayout() {
 
   return (
     <>
-      <Stack>
+      <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         {/* <Stack.Screen name="(auth)/register" options={{ title: 'Register' }} /> */}
       </Stack>
