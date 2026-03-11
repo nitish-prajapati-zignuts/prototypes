@@ -1,3 +1,4 @@
+import { responsiveSize } from "@/styles/AuthStyles";
 import { ProjectStyle } from "@/styles/ProjectStyle";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -52,23 +53,26 @@ export default function ProjectIndex() {
           style={ProjectStyle.viewButton}
           onPress={() =>
             router.push({
-              pathname: "/(projects)/project-details",
+              //pathname: "/(projects)/project-details",
+              pathname:"/(tasks)",
               params: { id: item.id },
             })
           }
         >
-          <Ionicons name="list-outline" size={16} color="#fff" />
-          <Text style={ProjectStyle.buttonText}>Tasks</Text>
+          <Ionicons name="list-outline" size={responsiveSize(16)} color="#fff" />
+          <Text style={ProjectStyle.buttonText}>View Tasks</Text>
         </TouchableOpacity>
 
         {/* RIGHT */}
+
+        {/* Add Id to this Param */}
         <View style={ProjectStyle.rightButtons}>
-          <TouchableOpacity style={ProjectStyle.iconButton}>
-            <Ionicons name="create-outline" size={18} color="#fff" />
+          <TouchableOpacity onPress={() => router.push("/(projects)/update-project")} style={ProjectStyle.iconButton}>
+            <Ionicons name="create-outline" size={responsiveSize(18)} color="#fff" />
           </TouchableOpacity>
 
           <TouchableOpacity style={ProjectStyle.deleteIconButton}>
-            <Ionicons name="trash-outline" size={18} color="#fff" />
+            <Ionicons name="trash-outline" size={responsiveSize(18)} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
@@ -77,27 +81,27 @@ export default function ProjectIndex() {
 
   return (
     <SafeAreaView style={ProjectStyle.safeArea}>
-    <View style={ProjectStyle.container}>
-      <Text style={ProjectStyle.heading}>Projects</Text>
-      <Text style={ProjectStyle.subheading}>Manage your projects</Text>
-      <FlatList
-        data={projects}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        ListEmptyComponent={<Text style={ProjectStyle.empty}>No Projects Found</Text>}
-      />
+      <View style={ProjectStyle.container}>
+        <Text style={ProjectStyle.heading}>Projects</Text>
+        <Text style={ProjectStyle.subheading}>Manage your projects</Text>
+        <FlatList
+          data={projects}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          ListEmptyComponent={<Text style={ProjectStyle.empty}>No Projects Found</Text>}
+        />
 
-      {/* Floating Add Button */}
-      <TouchableOpacity
-        style={ProjectStyle.fab}
-        onPress={() => router.push("/(projects)/add-project")}
-      >
-        <Ionicons name="add" size={28} color="#fff" />
-      </TouchableOpacity>
-    </View>
+        {/* Floating Add Button */}
+        <TouchableOpacity
+          style={ProjectStyle.fab}
+          onPress={() => router.push("/(projects)/add-project")}
+        >
+          <Ionicons name="add" size={responsiveSize(28)} color="#fff" />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
