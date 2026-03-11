@@ -39,7 +39,7 @@ export default function ProjectIndex() {
       style={ProjectStyle.card}
       onPress={() =>
         router.push({
-          pathname: "/(projects)/project-details",
+          pathname: "/(protected)/projects/project-details",
           params: { id: item.id },
         })
       }
@@ -54,7 +54,7 @@ export default function ProjectIndex() {
           onPress={() =>
             router.push({
               //pathname: "/(projects)/project-details",
-              pathname:"/(tasks)",
+              pathname:"/(protected)/tasks",
               params: { id: item.id },
             })
           }
@@ -67,7 +67,7 @@ export default function ProjectIndex() {
 
         {/* Add Id to this Param */}
         <View style={ProjectStyle.rightButtons}>
-          <TouchableOpacity onPress={() => router.push("/(projects)/update-project")} style={ProjectStyle.iconButton}>
+          <TouchableOpacity onPress={() => router.push("/(protected)/projects/update-project")} style={ProjectStyle.iconButton}>
             <Ionicons name="create-outline" size={responsiveSize(18)} color="#fff" />
           </TouchableOpacity>
 
@@ -97,7 +97,7 @@ export default function ProjectIndex() {
         {/* Floating Add Button */}
         <TouchableOpacity
           style={ProjectStyle.fab}
-          onPress={() => router.push("/(projects)/add-project")}
+          onPress={() => router.push("/(protected)/projects/add-project")}
         >
           <Ionicons name="add" size={responsiveSize(28)} color="#fff" />
         </TouchableOpacity>

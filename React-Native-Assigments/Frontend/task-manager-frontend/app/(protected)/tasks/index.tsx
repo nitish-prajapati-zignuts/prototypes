@@ -143,7 +143,7 @@ export default function TasksList() {
 
                 <View style={styles.actions}>
                     <TouchableOpacity
-                        onPress={() => router.push("/(tasks)/update-task")}
+                        onPress={() => router.push("/(protected)/tasks/update-task")}
                         style={styles.iconButton}
                     >
                         <Ionicons name="create-outline" size={responsiveSize(18)} color="#fff" />
@@ -172,7 +172,7 @@ export default function TasksList() {
                 showsVerticalScrollIndicator={false}
             />
 
-            <TouchableOpacity onPress={() => router.push("/(tasks)/create-task")} style={styles.fab}>
+            <TouchableOpacity onPress={() => router.push("/(protected)/tasks/create-task")} style={styles.fab}>
                 <Text style={styles.fabText}>＋</Text>
             </TouchableOpacity>
         </View>

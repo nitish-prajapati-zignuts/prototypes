@@ -1,7 +1,9 @@
+import AuthProvider from "@/providers/AuthProviders";
 import { Stack } from "expo-router";
 
 export default function ProjectLayout() {
   return (
+    <AuthProvider>
     <Stack>
       {/* Project List */}
       <Stack.Screen
@@ -47,5 +49,6 @@ export default function ProjectLayout() {
         }}
       />
     </Stack>
+    </AuthProvider>
   );
 }

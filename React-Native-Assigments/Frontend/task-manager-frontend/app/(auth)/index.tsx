@@ -109,7 +109,7 @@ export default function Login() {
                         </Text>
 
                         <Text
-                            onPress={() => router.replace("/(projects)")}
+                            onPress={() => router.replace("/(protected)/projects")}
                             style={AuthStyles.footerText}
                         >
                             Go to Projects?{" "}
