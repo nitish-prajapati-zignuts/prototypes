@@ -2,6 +2,7 @@ import AuthProvider from '@/providers/AuthProviders';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import ToastManager from 'toastify-react-native'
 
 export default function RootLayout() {
 
@@ -15,6 +16,7 @@ export default function RootLayout() {
           {/* <Stack.Screen name="(auth)/register" options={{ title: 'Register' }} /> */}
         </Stack>
         <StatusBar style="auto" />
+        <ToastManager />
       </AuthProvider>
     </>
   );

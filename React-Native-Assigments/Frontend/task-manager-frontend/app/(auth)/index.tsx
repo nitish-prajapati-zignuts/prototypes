@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
+import { authApi } from "@/utils/axiosInstance";
 
 type FormData = {
     email: string;
@@ -24,8 +25,18 @@ export default function Login() {
         formState: { errors },
     } = useForm<FormData>();
 
-    const onSubmit = (data: FormData) => {
+    const onSubmit = async (data: FormData) => {
         console.log("Login Data:", data);
+        const response = await authApi.post<Response>("/login", {
+            email: data.email,
+            password: data.password
+        })
+        if (response.status === 200) {
+            router.push("/(protected)/projects")
+        }
+        else{
+            console.log(response.data)
+        }
     };
 
     return (
