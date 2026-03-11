@@ -1,46 +1,104 @@
 import { responsiveSize } from "@/styles/AuthStyles";
 import { ProjectStyle } from "@/styles/ProjectStyle";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+
 import {
   FlatList,
   RefreshControl,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-
-
-const MockData = [
-  { id: 1, title: "Project 1", description: "Description 1" },
-  { id: 2, title: "Project 2", description: "Description 2" },
-  { id: 3, title: "Project 3", description: "Description 3" },
-];
+import { axiosInstance } from "@/utils/axiosInstance";
+import { useToast } from "@/providers/ToastProvider";
+import { Project, Pagination, ProjectsResponse } from "@/utils/types/project.list"
 
 export default function ProjectIndex() {
-  const [projects, setProjects] = useState(MockData);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [pagination, setPagination] = useState<Pagination>({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+  });
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const { showToast } = useToast()
 
-  const onRefresh = () => {
-    setRefreshing(true);
+  const fetchProjects = async (page: number = 1, concat: boolean = false) => {
+    if (loading) return;
 
-    setTimeout(() => {
-      setProjects([...MockData]);
+    try {
+      page === 1 ? setLoading(true) : setLoadingMore(true);
+
+      const res = await axiosInstance.get<ProjectsResponse>(
+        `/projects/getAllProjects?page=${page}&limit=${pagination.limit}`
+      );
+
+      const data = res.data.data;
+
+      if (concat) {
+        setProjects((prev) => [...prev, ...data.projects]);
+      } else {
+        setProjects(data.projects);
+      }
+
+      setPagination(data.pagination);
+    } catch (error) {
+      console.log("Fetch Projects Error:", error);
+    } finally {
+      setLoading(false);
       setRefreshing(false);
-    }, 1500);
+      setLoadingMore(false);
+    }
   };
 
-  const renderItem = ({ item }: { item: (typeof MockData)[0] }) => (
+
+  const deleteTasks = useCallback(async (id: string) => {
+    try {
+      const res = await axiosInstance.delete(`/projects/${id}`);
+      if (res.status === 200) {
+        showToast("Deleted Successfully", "success");
+        // Refresh the list after deletion
+        fetchProjects(1, false);
+      } else {
+        showToast("Something Went Wrong", "error");
+      }
+    } catch (error) {
+      showToast("Something Went Wrong", "error");
+    }
+  }, [pagination.limit]); // Only recreate if limit changes
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProjects(); // refetch on focus
+    }, [deleteTasks])
+  );
+
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    fetchProjects(1, false);
+  };
+
+  const onEndReached = () => {
+    if (pagination.page < pagination.totalPages && !loadingMore) {
+      fetchProjects(pagination.page + 1, true);
+    }
+  };
+
+  const renderItem = ({ item }: { item: Project }) => (
     <TouchableOpacity
       style={ProjectStyle.card}
       onPress={() =>
         router.push({
           pathname: "/(protected)/projects/project-details",
-          params: { id: item.id },
+          params: { id: item._id },
         })
       }
     >
@@ -48,14 +106,12 @@ export default function ProjectIndex() {
       <Text style={ProjectStyle.description}>{item.description}</Text>
 
       <View style={ProjectStyle.buttonRow}>
-        {/* LEFT */}
         <TouchableOpacity
           style={ProjectStyle.viewButton}
           onPress={() =>
             router.push({
-              //pathname: "/(projects)/project-details",
-              pathname:"/(protected)/tasks",
-              params: { id: item.id },
+              pathname: "/(protected)/tasks",
+              params: { id: item._id },
             })
           }
         >
@@ -63,16 +119,29 @@ export default function ProjectIndex() {
           <Text style={ProjectStyle.buttonText}>View Tasks</Text>
         </TouchableOpacity>
 
-        {/* RIGHT */}
-
-        {/* Add Id to this Param */}
         <View style={ProjectStyle.rightButtons}>
-          <TouchableOpacity onPress={() => router.push("/(protected)/projects/update-project")} style={ProjectStyle.iconButton}>
-            <Ionicons name="create-outline" size={responsiveSize(18)} color="#fff" />
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/(protected)/projects/update-project",
+                params: { id: item._id },
+              })
+            }
+            style={ProjectStyle.iconButton}
+          >
+            <Ionicons
+              name="create-outline"
+              size={responsiveSize(18)}
+              color="#fff"
+            />
           </TouchableOpacity>
 
-          <TouchableOpacity style={ProjectStyle.deleteIconButton}>
-            <Ionicons name="trash-outline" size={responsiveSize(18)} color="#fff" />
+          <TouchableOpacity onPress={() => deleteTasks(item._id)} style={ProjectStyle.deleteIconButton}>
+            <Ionicons
+              name="trash-outline"
+              size={responsiveSize(18)}
+              color="#fff"
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -84,14 +153,24 @@ export default function ProjectIndex() {
       <View style={ProjectStyle.container}>
         <Text style={ProjectStyle.heading}>Projects</Text>
         <Text style={ProjectStyle.subheading}>Manage your projects</Text>
+
         <FlatList
           data={projects}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item._id}
           renderItem={renderItem}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          ListEmptyComponent={<Text style={ProjectStyle.empty}>No Projects Found</Text>}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={() =>
+            loadingMore ? (
+              <ActivityIndicator size="small" color="#000" style={{ margin: 10 }} />
+            ) : null
+          }
+          ListEmptyComponent={
+            !loading ? <Text style={ProjectStyle.empty}>No Projects Found</Text> : null
+          }
         />
 
         {/* Floating Add Button */}
@@ -105,4 +184,3 @@ export default function ProjectIndex() {
     </SafeAreaView>
   );
 }
-

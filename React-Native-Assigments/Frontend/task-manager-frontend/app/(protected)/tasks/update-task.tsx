@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -8,11 +8,14 @@ import {
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
+    ActivityIndicator,
 } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Dropdown } from "react-native-element-dropdown";
 import { UpdateTaskStyles as styles } from "@/styles/UpdateTaskStyles";
+import { router, useLocalSearchParams } from "expo-router";
+import { axiosInstance } from "@/utils/axiosInstance";
 
 
 type FormData = {
@@ -48,19 +51,74 @@ const priorityOptions = [
 ];
 
 export default function UpdateTask() {
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<FormData>({ defaultValues });
-    const [open, setOpen] = useState(false);
+    const { id } = useLocalSearchParams(); // Task ID from route
+  const [loading, setLoading] = useState(true);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
-    const [showDatePicker, setShowDatePicker] = useState(false);
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<FormData>({
+    defaultValues: {
+      title: "",
+      description: "",
+      status: "TODO",
+      priority: "LOW",
+      assignedTo: "",
+      projectId: "",
+      dueDate: "",
+    },
+  });
 
-    const onSubmit = (data: FormData) => {
-        console.log("Updated Task:", data);
-    };
+  // Fetch task by ID
+  const fetchTask = async (taskId: string) => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get(`/tasks/${taskId}`);
+      const task = res.data.data;
 
+      // Populate the form
+      setValue("title", task.title);
+      setValue("description", task.description);
+      setValue("status", task.status);
+      setValue("priority", task.priority);
+      setValue("assignedTo", task.assignedTo._id || "");
+      setValue("projectId", task.projectId._id || "");
+      setValue("dueDate", task.dueDate.split("T")[0]); // YYYY-MM-DD
+    } catch (error) {
+      console.error("Error fetching task:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) fetchTask(id as string);
+  }, [id]);
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const updateddata = {
+        taskId:id,
+        ...data
+      }
+      const res = await axiosInstance.put(`/tasks/${id}`, updateddata);
+      console.log("Task updated:", res.data);
+      router.back();
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}

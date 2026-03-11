@@ -1,16 +1,21 @@
-import { Redirect, Stack, usePathname, useSegments } from "expo-router";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { useAuthStore } from "@/store/AuthStore";
+import { Redirect, Stack } from "expo-router";
+import { useEffect } from "react";
 
 export default function ProtectedLayout() {
-    const segments = useSegments()
-    const [count, setCount] = useState(0);
+    const token = useAuthStore((s) => s.token);
+    const isAuthorized = useAuthStore((s) => s.isAuthorized);
+    const fetchMe = useAuthStore((s) => s.fetchMe);
 
     useEffect(() => {
-        setCount((prev) => prev + 1);
-        console.log("Count:", count);
-        console.log("Protected Logs")
-    }, [segments]);
+        if (token) {
+            fetchMe();
+        }
+    }, [token]);
 
-    return <Stack screenOptions={{headerShown:false}} />;
+    if (!token || !isAuthorized) {
+        return <Redirect href="/(auth)" />;
+    }
+
+    return <Stack screenOptions={{ headerShown: false }} />;
 }

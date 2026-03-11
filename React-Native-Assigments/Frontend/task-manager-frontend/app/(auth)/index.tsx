@@ -12,6 +12,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
 import { authApi } from "@/utils/axiosInstance";
+import { useAuthStore } from "@/store/AuthStore";
+import { useToast } from "@/providers/ToastProvider";
+import { useEffect, useState } from "react";
 
 type FormData = {
     email: string;
@@ -24,19 +27,30 @@ export default function Login() {
         handleSubmit,
         formState: { errors },
     } = useForm<FormData>();
+    const setTokenFromBackend = useAuthStore((state) => state.setToken)
+    const { showToast } = useToast()
+
+
+
 
     const onSubmit = async (data: FormData) => {
         console.log("Login Data:", data);
-        const response = await authApi.post<Response>("/login", {
+        const response = await authApi.post("/login", {
             email: data.email,
             password: data.password
         })
+
         if (response.status === 200) {
+            const token = response.data.data.token
+            console.log(token)
+            setTokenFromBackend(token)
+            showToast(response.data.message, "success")
             router.push("/(protected)/projects")
+        } else {
+            showToast(response.data.message, "error")
         }
-        else{
-            console.log(response.data)
-        }
+
+
     };
 
     return (

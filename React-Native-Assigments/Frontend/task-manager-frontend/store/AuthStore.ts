@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { router } from "expo-router";
 
 type User = {
-  id: string;
+  _id: string;
   name: string;
   email: string;
 };
@@ -13,6 +14,7 @@ type AuthState = {
   user: User | null;
   token: string | null;
   loading: boolean;
+  isAuthorized: boolean;
 
   setToken: (token: string) => void;
   logout: () => void;
@@ -25,6 +27,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       loading: false,
+      isAuthorized: false,
 
       setToken: (token) => set({ token }),
 
@@ -32,6 +35,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           token: null,
           user: null,
+          isAuthorized: false,
         }),
 
       fetchMe: async () => {
@@ -42,23 +46,39 @@ export const useAuthStore = create<AuthState>()(
 
           set({ loading: true });
 
-          const res = await axios.get("/me", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          const res = await axiosInstance.post("/auth/me");
+
+          const { user, isAuthorized } = res.data.data;
+          //console.log(user,isAuthorized)
+          if (!isAuthorized && user == null) {
+            set({
+              user: null,
+              token: null,
+              isAuthorized: false,
+              loading: false,
+            });
+
+            router.replace("/(auth)");
+            return;
+          }
 
           set({
-            user: res.data,
+            user,
+            isAuthorized: true,
             loading: false,
           });
+
         } catch (error) {
           console.log("ME API Error", error);
 
           set({
             user: null,
+            token: null,
+            isAuthorized: false,
             loading: false,
           });
+
+          router.replace("/(auth)");
         }
       },
     }),

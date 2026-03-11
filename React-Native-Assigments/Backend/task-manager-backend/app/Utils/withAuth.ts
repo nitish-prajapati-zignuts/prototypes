@@ -18,7 +18,7 @@ export function withAuth(
             console.log(authHeader);
 
             if (!authHeader || !authHeader.startsWith("Bearer ")) {
-                return new ApiResponse(res, "Token not provided").send(401);
+                return new ApiResponse(res, "Token not provided",{user:null,isAuthorized:false}).send(401);
             }
 
             const token = authHeader.split(" ")[1];
@@ -31,7 +31,7 @@ export function withAuth(
             return handler(req, res, decoded.id);
 
         } catch (error) {
-            return new ApiResponse(res, "Invalid or expired token").send(401);
+            return new ApiResponse(res, "Invalid or expired token",{user:null,isAuthorized:false}).send(401);
         }
     };
 }

@@ -15,8 +15,13 @@ async function getProjectById(req: NextApiRequest, res: NextApiResponse, userId:
                 return new ApiResponse(res, "Project ID is required").send(400);
             }
 
-            const project = await Project.findById(id).where({ isDeleted: false, userId: userId });
-
+            const project = await Project.findOne({
+                _id: id,
+                userId: userId,
+                isDeleted: false
+            })
+                .populate("userId", "name email") // Selective population is faster
+                .lean(); // Returns a plain JS object, better for performance if you aren't saving changes
             if (!project) {
                 return new ApiResponse(res, "Project not found").send(404);
             }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,10 +7,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { router, useLocalSearchParams } from "expo-router";
 import { AddProjectScreenStyles as styles } from "@/styles/AddProject";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { useToast } from "@/providers/ToastProvider";
 
 type FormData = {
   title: string;
@@ -18,26 +21,69 @@ type FormData = {
 };
 
 export default function UpdateProject() {
-  const { id, title, description } = useLocalSearchParams();
-
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const { showToast } = useToast()
+  
+  
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      title: (title as string) || "",
-      description: (description as string) || "",
+      title: "",
+      description: "",
     },
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log("Updated Project:", { id, ...data });
+  const fetchProjectDetailsById = async (projectId: string) => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get<{ success: boolean; data: FormData }>(
+        `/projects/${projectId}`
+      );
 
-    // API call here
-
-    router.back();
+      if (res.data.success) {
+        reset(res.data.data);
+      }
+    } catch (error) {
+      console.log("Fetch Project Error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (id) {
+      fetchProjectDetailsById(id);
+    }
+  }, [id]);
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      setSubmitting(true);
+      const res = await axiosInstance.put(`/projects/${id}`, data);
+      if (res.data.success) {
+        showToast("Data Updated Successfully", "success")
+      }
+    } catch (error) {
+      showToast("Data Could Not Updated Successfully", "error")
+      console.log("Update Project Error:", error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: "center", flex: 1 }]}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -52,7 +98,6 @@ export default function UpdateProject() {
         <View style={styles.container}>
           <Text style={styles.heading}>Update Project</Text>
 
-          {/* Title */}
           <Text style={styles.label}>Project Title</Text>
           <Controller
             control={control}
@@ -67,11 +112,8 @@ export default function UpdateProject() {
               />
             )}
           />
-          {errors.title && (
-            <Text style={styles.error}>{errors.title.message}</Text>
-          )}
+          {errors.title && <Text style={styles.error}>{errors.title.message}</Text>}
 
-          {/* Description */}
           <Text style={styles.label}>Description</Text>
           <Controller
             control={control}
@@ -91,12 +133,16 @@ export default function UpdateProject() {
             <Text style={styles.error}>{errors.description.message}</Text>
           )}
 
-          {/* Update Button */}
           <TouchableOpacity
-            style={styles.saveButton}
+            style={[styles.saveButton, submitting && { opacity: 0.7 }]}
             onPress={handleSubmit(onSubmit)}
+            disabled={submitting}
           >
-            <Text style={styles.saveText}>Update Project</Text>
+            {submitting ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.saveText}>Update Project</Text>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>

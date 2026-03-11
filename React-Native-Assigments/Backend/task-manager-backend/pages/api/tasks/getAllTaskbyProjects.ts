@@ -30,7 +30,7 @@ async function getAllTaskbyProjects(
             filter.priority = priority;
         }
 
-        const tasks = await Task.find(filter);
+        const tasks = await Task.find(filter).populate("userId projectId assignedTo","-password");
 
         return new ApiResponse(res, "Tasks fetched successfully", tasks).send(200);
 
