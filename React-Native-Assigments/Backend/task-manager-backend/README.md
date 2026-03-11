@@ -2,8 +2,8 @@
 
 ## 🛠 Tech Stack
 * **Backend:** Next.js (API Routes)
-* **Frontend:** React Native (Expo/CLI)
-* **Database:** [e.g., MongoDB / PostgreSQL]
+* **Frontend:** React Native (Expo)
+* **Database:** [MongoDB]
 * **Auth:** JWT (JSON Web Tokens)
 
 ---
