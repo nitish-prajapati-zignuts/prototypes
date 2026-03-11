@@ -5,6 +5,10 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { Project } from "@/app/models/ProjectSchema";
 import { Task } from "@/app/models/TasksSchema";
 
+/**
+ * Handler to manage Getting Projects.
+ * Wrapped with withDB for connection management and withAuth for session validation.
+ */
 async function getProjectsHandler(
     req: NextApiRequest,
     res: NextApiResponse,

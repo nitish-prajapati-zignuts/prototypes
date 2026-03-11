@@ -4,6 +4,10 @@ import { ApiResponse } from "@/app/Utils/ApiResponse";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Project } from "@/app/models/ProjectSchema";
 
+/**
+ * Handler to manage Project creation.
+ * Wrapped with withDB for connection management and withAuth for session validation.
+ */
 async function createHandler(req: NextApiRequest, res: NextApiResponse, userId: string) {
     /* Getting Title and Description from User */
     const { title, description } = req.body;
