@@ -30,7 +30,7 @@ async function getProjectsHandler(
 
     /* Creating Filter Object */
     const filter: any = {
-        userId,
+        //userId,
     };
 
     /* Adding Search Filter */

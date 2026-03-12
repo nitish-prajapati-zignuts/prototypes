@@ -26,7 +26,6 @@ async function getAllTaskbyProjects(
         //Adding Filters
         const filter: any = {
             projectId,
-            userId,
         };
 
         if (status && status !== "") {
@@ -36,6 +35,8 @@ async function getAllTaskbyProjects(
         if (priority && priority !== "") {
             filter.priority = priority;
         }
+        //Only That Particular User will be able to see the User Data
+        filter.assignedTo = userId
 
         //Querying the Filter and Populating the Required References
         const tasks = await Task.find(filter).populate("userId projectId assignedTo","-password");

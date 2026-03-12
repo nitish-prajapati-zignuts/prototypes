@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -14,8 +14,9 @@ import { Controller, useForm } from "react-hook-form";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Dropdown } from "react-native-element-dropdown";
 import { UpdateTaskStyles as styles } from "@/styles/UpdateTaskStyles";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { axiosInstance } from "@/utils/axiosInstance";
+import { useToast } from "@/providers/ToastProvider";
 
 
 type FormData = {
@@ -27,6 +28,14 @@ type FormData = {
     projectId: string;
     dueDate: string;
 };
+
+type User = {
+    _id: string
+    name: string
+    email: string
+}
+
+type AssignedData = User[]
 
 const defaultValues: FormData = {
     title: "Adding New Task #7",
@@ -50,75 +59,116 @@ const priorityOptions = [
     { label: "High", value: "HIGH" },
 ];
 
+
+
 export default function UpdateTask() {
     const { id } = useLocalSearchParams(); // Task ID from route
-  const [loading, setLoading] = useState(true);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [allUser, setAllUser] = useState<AssignedData>([])
+    const { showToast } = useToast()
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<FormData>({
-    defaultValues: {
-      title: "",
-      description: "",
-      status: "TODO",
-      priority: "LOW",
-      assignedTo: "",
-      projectId: "",
-      dueDate: "",
-    },
-  });
+    const {
+        control,
+        handleSubmit,
+        setValue,
+        formState: { errors },
+    } = useForm<FormData>({
+        defaultValues: {
+            title: "",
+            description: "",
+            status: "TODO",
+            priority: "LOW",
+            assignedTo: "",
+            projectId: "",
+            dueDate: "",
+        },
+    });
 
-  // Fetch task by ID
-  const fetchTask = async (taskId: string) => {
-    try {
-      setLoading(true);
-      const res = await axiosInstance.get(`/tasks/${taskId}`);
-      const task = res.data.data;
+    // Fetch task by ID
+    const fetchTask = async (taskId: string) => {
+        try {
+            setLoading(true);
+            const res = await axiosInstance.get(`/tasks/${taskId}`);
+            const task = res.data.data;
 
-      // Populate the form
-      setValue("title", task.title);
-      setValue("description", task.description);
-      setValue("status", task.status);
-      setValue("priority", task.priority);
-      setValue("assignedTo", task.assignedTo._id || "");
-      setValue("projectId", task.projectId._id || "");
-      setValue("dueDate", task.dueDate.split("T")[0]); // YYYY-MM-DD
-    } catch (error) {
-      console.error("Error fetching task:", error);
-    } finally {
-      setLoading(false);
+            console.log(task)
+
+            // Populate the form
+            setValue("title", task.title);
+            setValue("description", task.description);
+            setValue("status", task.status);
+            setValue("priority", task.priority);
+            setValue("assignedTo", task.assignedTo || "");
+            setValue("projectId", task.projectId || "");
+            setValue("dueDate", task.dueDate.split("T")[0]); // YYYY-MM-DD
+        } catch (error) {
+            showToast("Error in Fetching Task", "error")
+            console.error("Error fetching task:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    //Drop Down for Assigning Changes
+    const fetchUsers = useCallback(async () => {
+        setLoading(true)
+
+        try {
+            const res = await axiosInstance.get("/tasks/AssignedUser")
+            const data = res.data.data as AssignedData
+
+            setAllUser(data)
+        } catch (error) {
+            showToast("Error in Fetching Users", "error")
+
+            console.log("Something Went Wrong", error)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!id) return;
+
+        const fetchTaskPromise = async () => {
+            try {
+                //Fetching Multiple API Calls
+                await Promise.all([
+                    fetchTask(id as string),
+                    fetchUsers()
+                ]);
+            } catch (error) {
+                console.error("Error fetching tasks:", error);
+            }
+        };
+
+        fetchTaskPromise();
+    }, [id]);
+
+    const onSubmit = async (data: FormData) => {
+        try {
+            const updateddata = {
+                taskId: id,
+                ...data
+            }
+            const res = await axiosInstance.put(`/tasks/${id}`, updateddata);
+            console.log("Task updated:", res.data);
+            showToast("Task Updated Successfully", "success")
+
+            router.back();
+        } catch (error) {
+            showToast("Error in Updating Task", "error")
+
+            console.error("Error updating task:", error);
+        }
+    };
+
+    if (loading) {
+        return (
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <ActivityIndicator size="large" color="#000" />
+            </View>
+        );
     }
-  };
-
-  useEffect(() => {
-    if (id) fetchTask(id as string);
-  }, [id]);
-
-  const onSubmit = async (data: FormData) => {
-    try {
-      const updateddata = {
-        taskId:id,
-        ...data
-      }
-      const res = await axiosInstance.put(`/tasks/${id}`, updateddata);
-      console.log("Task updated:", res.data);
-      router.back();
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
-  };
-
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
-    );
-  }
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -203,6 +253,26 @@ export default function UpdateTask() {
                             )}
                         />
                     </View>
+                </View>
+
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.label}>Change Assignee</Text>
+
+                    <Controller
+                        control={control}
+                        name="assignedTo"
+                        render={({ field: { onChange, value } }) => (
+                            <Dropdown
+                                style={styles.dropdown}
+                                data={allUser.map(user => ({ label: user.name, value: user._id }))}
+                                labelField="label"
+                                valueField="value"
+                                placeholder="Select User"
+                                value={value}
+                                onChange={(item) => onChange(item.value)}
+                            />
+                        )}
+                    />
                 </View>
 
                 {/* DATE PICKER */}

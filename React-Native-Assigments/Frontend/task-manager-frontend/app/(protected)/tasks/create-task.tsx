@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -7,11 +7,17 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
+    ActivityIndicator,
 } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Dropdown } from "react-native-element-dropdown";
 import { UpdateTaskStyles as styles } from "@/styles/UpdateTaskStyles";
+import { useToast } from "@/providers/ToastProvider";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { router, useLocalSearchParams } from "expo-router";
+
+
 
 type FormData = {
     title: string;
@@ -19,7 +25,6 @@ type FormData = {
     status: string;
     priority: string;
     assignedTo: string;
-    projectId: string;
     dueDate: string;
 };
 
@@ -29,9 +34,24 @@ const defaultValues: FormData = {
     status: "",
     priority: "",
     assignedTo: "",
-    projectId: "",
     dueDate: "",
 };
+
+type User = {
+    _id: string
+    name: string
+    email: string
+}
+
+type AssignedData = User[]
+
+type Project = {
+    _id: string
+    title: string,
+    description: string
+}
+
+type ProjectDetails = Project[]
 
 const statusOptions = [
     { label: "Todo", value: "TODO" },
@@ -50,13 +70,67 @@ export default function CreateTasks() {
         control,
         handleSubmit,
         formState: { errors },
+        reset
     } = useForm<FormData>({ defaultValues });
+    const { showToast } = useToast()
+    const { projectId } = useLocalSearchParams()
+    console.log("Create-Task", projectId)
 
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [loading, setLoading] = useState(false)
+    const [allUser, setAllUser] = useState<AssignedData>([])
+    const [projectDetails, setAllProjectDetails] = useState<ProjectDetails>([])
 
-    const onSubmit = (data: FormData) => {
+    const onSubmit = async (data: FormData) => {
         console.log("Created Task:", data);
+        console.log("projectId", projectId)
+
+        try {
+            const updatedData = {
+                ...data,
+                projectId: projectId
+            }
+            const res = await axiosInstance.post("/tasks/createTask",
+                updatedData
+            )
+            reset()
+            router.back()
+            console.log(res.status)
+
+        } catch (error) {
+            showToast("Something went Wrong", "error")
+            console.log(error)
+        } finally {
+            setLoading(false)
+        }
     };
+
+    //Get All Projects 
+
+    //Get All Assigned User
+    const fetchUsers = useCallback(async () => {
+        setLoading(true)
+
+        try {
+            const res = await axiosInstance.get("/tasks/AssignedUser")
+            const data = res.data.data as AssignedData
+
+            setAllUser(data)
+        } catch (error) {
+            showToast("Error in Fetching Users", "error")
+
+            console.log("Something Went Wrong", error)
+        } finally {
+            setLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        Promise.all([
+            //fetchProjects(),
+            fetchUsers()
+        ])
+    }, []);
 
     return (
         <KeyboardAvoidingView
@@ -77,6 +151,7 @@ export default function CreateTasks() {
                             style={[styles.input, errors.title && styles.inputError]}
                             placeholder="Enter task title"
                             value={value}
+                            placeholderTextColor="#999"
                             onChangeText={onChange}
                         />
                     )}
@@ -93,11 +168,12 @@ export default function CreateTasks() {
                     rules={{ required: "Description is required" }}
                     render={({ field: { onChange, value } }) => (
                         <TextInput
-                            style={[styles.input, { height: 80 }]}
+                            style={[styles.input]}
                             multiline
                             textAlignVertical="top"
                             placeholder="Enter description"
                             value={value}
+                            placeholderTextColor="#999"
                             onChangeText={onChange}
                         />
                     )}
@@ -164,11 +240,14 @@ export default function CreateTasks() {
                     name="assignedTo"
                     rules={{ required: "User ID required" }}
                     render={({ field: { onChange, value } }) => (
-                        <TextInput
-                            style={[styles.input, errors.assignedTo && styles.inputError]}
-                            placeholder="User ID"
+                        <Dropdown
+                            style={styles.dropdown}
+                            data={allUser.map(user => ({ label: user.name, value: user._id }))}
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Select Assignee"
                             value={value}
-                            onChangeText={onChange}
+                            onChange={(item) => onChange(item.value)}
                         />
                     )}
                 />
@@ -176,24 +255,7 @@ export default function CreateTasks() {
                     <Text style={styles.errorText}>{errors.assignedTo.message}</Text>
                 )}
 
-                {/* PROJECT */}
-                <Text style={styles.label}>Project ID</Text>
-                <Controller
-                    control={control}
-                    name="projectId"
-                    rules={{ required: "Project ID required" }}
-                    render={({ field: { onChange, value } }) => (
-                        <TextInput
-                            style={[styles.input, errors.projectId && styles.inputError]}
-                            placeholder="Project ID"
-                            value={value}
-                            onChangeText={onChange}
-                        />
-                    )}
-                />
-                {errors.projectId && (
-                    <Text style={styles.errorText}>{errors.projectId.message}</Text>
-                )}
+
 
                 {/* DATE PICKER */}
                 <Text style={styles.label}>Due Date</Text>
@@ -246,7 +308,7 @@ export default function CreateTasks() {
                     style={styles.button}
                     onPress={handleSubmit(onSubmit)}
                 >
-                    <Text style={styles.buttonText}>Create Task</Text>
+                    {loading ? <ActivityIndicator /> : (<Text style={styles.buttonText}>Create Task</Text>)}
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>

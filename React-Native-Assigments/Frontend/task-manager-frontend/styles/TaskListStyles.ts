@@ -49,7 +49,8 @@ export const TaskListStyles = StyleSheet.create({
     row: {
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: responsiveSize(6),
+        marginBottom: responsiveSize(8),
+        gap: responsiveSize(10)
     },
 
     badge: {
@@ -108,15 +109,53 @@ export const TaskListStyles = StyleSheet.create({
         borderRadius: moderateScale(8),
     },
     footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: responsiveSize(8),
-},
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginTop: responsiveSize(8),
+    },
 
-actions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: responsiveSize(8),
-},
+    actions: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: responsiveSize(8),
+    },
+    searchContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#F3F4F6",
+        borderRadius: responsiveSize(12),
+        paddingHorizontal: responsiveSize(12),
+        marginBottom: responsiveSize(15),
+    },
+
+    searchInput: {
+        flex: 1,
+        paddingVertical: responsiveSize(10),
+        paddingLeft: responsiveSize(10),
+        fontSize: responsiveFont(16),
+    },
+
+    button: {
+        flex: 1,
+        backgroundColor: "#4F46E5",
+        paddingVertical: responsiveSize(12),
+        borderRadius: responsiveSize(12),
+        alignItems: "center",
+    },
+
+    buttonText: {
+        color: "#fff",
+        fontWeight: "600",
+        fontSize: responsiveFont(16),
+    },
+    dropdown: {
+        flex: 1,
+        backgroundColor: "#f5f5f5ff",
+        borderRadius: responsiveSize(8),
+        paddingHorizontal: responsiveSize(10),
+        marginRight: responsiveSize(10),
+        marginBottom: responsiveSize(12),
+        padding: responsiveSize(20)
+    },
 });

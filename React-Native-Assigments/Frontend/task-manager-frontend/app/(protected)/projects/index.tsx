@@ -1,6 +1,6 @@
 import { responsiveSize } from "@/styles/AuthStyles";
 import { ProjectStyle } from "@/styles/ProjectStyle";
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 
@@ -92,6 +92,7 @@ export default function ProjectIndex() {
     }
   };
 
+
   const renderItem = ({ item }: { item: Project }) => (
     <TouchableOpacity
       style={ProjectStyle.card}
@@ -151,10 +152,20 @@ export default function ProjectIndex() {
   return (
     <SafeAreaView style={ProjectStyle.safeArea}>
       <View style={ProjectStyle.container}>
-        <Text style={ProjectStyle.heading}>Projects</Text>
-        <Text style={ProjectStyle.subheading}>Manage your projects</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", display: "flex", justifyContent: "space-between" }}>
+          <View>
+            <Text style={ProjectStyle.heading}>Projects</Text>
+            <Text style={ProjectStyle.subheading}>Manage your projects</Text>
+          </View>
+          <View>
+            <TouchableOpacity onPress={() => router.push("/(protected)/profile")}>
+              <AntDesign name="user" size={responsiveSize(24)} />
+            </TouchableOpacity>
+          </View>
+        </View>
 
         <FlatList
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: responsiveSize(90) }}
           data={projects}
           keyExtractor={(item) => item._id}
           renderItem={renderItem}
@@ -168,9 +179,11 @@ export default function ProjectIndex() {
               <ActivityIndicator size="small" color="#000" style={{ margin: 10 }} />
             ) : null
           }
-          ListEmptyComponent={
-            !loading ? <Text style={ProjectStyle.empty}>No Projects Found</Text> : null
-          }
+          ListEmptyComponent={() => !loading && (
+            <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+              <Text>No task found for this Project.</Text>
+            </View>
+          )}
         />
 
         {/* Floating Add Button */}

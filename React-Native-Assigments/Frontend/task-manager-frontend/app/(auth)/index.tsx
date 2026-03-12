@@ -26,11 +26,14 @@ export default function Login() {
         control,
         handleSubmit,
         formState: { errors },
-    } = useForm<FormData>();
+    } = useForm<FormData>({
+        defaultValues: {
+            email: "",
+            password: ""
+        }
+    });
     const setTokenFromBackend = useAuthStore((state) => state.setToken)
     const { showToast } = useToast()
-
-
 
 
     const onSubmit = async (data: FormData) => {
@@ -62,6 +65,7 @@ export default function Login() {
                 <ScrollView
                     contentContainerStyle={AuthStyles.container}
                     keyboardShouldPersistTaps="handled"
+                    removeClippedSubviews={false}
                 >
                     <View style={{ width: "100%", alignItems: "center" }}>
 
@@ -72,14 +76,17 @@ export default function Login() {
                         <Controller
                             control={control}
                             name="email"
+                            defaultValue=""
                             rules={{ required: "Email is required" }}
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
                                     style={AuthStyles.input}
                                     placeholder="Email"
                                     placeholderTextColor="#999"
-                                    keyboardType="email-address"
+                                    keyboardType="email-address" //This is causing flicker due to keyboard behaviour in Native Screens
                                     value={value}
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
                                     onChangeText={onChange}
                                 />
                             )}

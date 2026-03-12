@@ -1,7 +1,7 @@
 import { responsiveSize } from "@/styles/AuthStyles";
 import { TaskListStyles as styles } from "@/styles/TaskListStyles";
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FlatList,
@@ -10,8 +10,11 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import { axiosInstance } from "@/utils/axiosInstance";
+import { Dropdown } from "react-native-element-dropdown";
+
 
 // Types based on API
 export type User = {
@@ -52,21 +55,37 @@ export type TasksResponse = {
   data: Task[];
 };
 
+const statusOptions = [
+  { label: "All", value: "" },
+  { label: "Todo", value: "TODO" },
+  { label: "In Progress", value: "IN_PROGRESS" },
+  { label: "Done", value: "DONE" },
+];
+
+const priorityOptions = [
+  { label: "All", value: "" },
+  { label: "Low", value: "LOW" },
+  { label: "Medium", value: "MEDIUM" },
+  { label: "High", value: "HIGH" },
+];
+
 export default function TasksList() {
   const { id } = useLocalSearchParams(); // project id
-  console.log(id)
+  console.log("Project Id", id)
   const [tasks, setTasks] = useState<Task[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [priorityFilter, setPriorityFilter] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   // Fetch tasks from API
-  const fetchTasks = async (id:string) => {
+  const fetchTasks = async (id: string) => {
     try {
       setLoading(true);
       const res = await axiosInstance.post<TasksResponse>(
-        `tasks/getAllTaskbyProjects`,{
-            projectId:id
-        }
+        `tasks/getAllTaskbyProjects`, {
+        projectId: id
+      }
       );
       console.log(res.data)
       if (res.data.success) {
@@ -80,9 +99,20 @@ export default function TasksList() {
     }
   };
 
-  useEffect(() => {
-    if (id) fetchTasks(id as string);
-  }, [id]);
+  const filteredTasks = tasks.filter((task) => {
+    const statusMatch = statusFilter ? task.status === statusFilter : true;
+    const priorityMatch = priorityFilter ? task.priority === priorityFilter : true;
+
+    const searchMatch =
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return statusMatch && priorityMatch && searchMatch;
+  });
+  useFocusEffect(useCallback(() => {
+    if (id) fetchTasks(id as string)
+  }, [id]))
+
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -152,7 +182,13 @@ export default function TasksList() {
       </View>
     </View>
   );
-
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size="large" color="#1890ff" />
+      </View>
+    );
+  }
   if (loading && !refreshing) {
     return (
       <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
@@ -164,16 +200,55 @@ export default function TasksList() {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>My Tasks</Text>
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#777" />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search tasks..."
+          placeholderTextColor="#999"
+          value={searchQuery}
+          editable={tasks.length > 0 ? true : false}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
+      {tasks.length > 0 && (
+        <View style={styles.row}>
+
+          <Dropdown
+            style={styles.dropdown}
+            data={statusOptions}
+            labelField="label"
+            valueField="value"
+            placeholder="Status"
+            value={statusFilter}
+            onChange={(item) => setStatusFilter(item.value)}
+          />
+
+          <Dropdown
+            style={styles.dropdown}
+            data={priorityOptions}
+            labelField="label"
+            valueField="value"
+            placeholder="Priority"
+            value={priorityFilter}
+            onChange={(item) => setPriorityFilter(item.value)}
+          />
+
+        </View>
+      )}
 
       <FlatList
-        contentContainerStyle={{ paddingBottom: responsiveSize(90) }}
-        data={tasks}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: responsiveSize(90) }}
+        data={filteredTasks}
         keyExtractor={(item) => item._id}
         renderItem={renderItem}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => !loading && (
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
             <Text>No task found for this Project.</Text>
+          </View>
         )}
       />
 
@@ -186,3 +261,4 @@ export default function TasksList() {
     </View>
   );
 }
+

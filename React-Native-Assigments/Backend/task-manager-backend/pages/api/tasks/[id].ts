@@ -48,6 +48,8 @@ async function getProjectById(
                 taskId, // We need this to know WHICH task to update
             } = req.body;
 
+            console.log(req.body)
+
             // We absolutely need the taskId to perform an update
             if (!taskId) {
                 return new ApiResponse(res, "TaskId is required").send(400);
@@ -79,6 +81,7 @@ async function getProjectById(
         }
 
     } catch (error) {
+        console.log(error)
         return new ApiResponse(res, "Internal server error").send(500);
     }
 }

@@ -3,7 +3,6 @@ import { ToastProvider } from '@/providers/ToastProvider';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import ToastManager from 'toastify-react-native'
 
 export default function RootLayout() {
 

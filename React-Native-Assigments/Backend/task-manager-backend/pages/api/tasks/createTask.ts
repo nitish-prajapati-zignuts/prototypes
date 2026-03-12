@@ -14,6 +14,8 @@ async function createTask(req: NextApiRequest, res: NextApiResponse, userId: str
         if (req.method === "POST") {
             const { title, description, status, priority, dueDate, projectId, assignedTo } = req.body;
 
+            console.log(req.body)
+
             // Basic validation: Title, Description, and DueDate are our 'minimum viable' data
             if (!title || !description || !dueDate) {
                 // Using 400 (Bad Request) here as 401 is reserved for Auth failures

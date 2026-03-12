@@ -7,6 +7,8 @@ export default function AuthLayout() {
     const token = useAuthStore((state) => state.token);
     const isAuthorized = useAuthStore((state) => state.isAuthorized);
 
+    
+
     // If user already logged in → redirect
     if (token && isAuthorized) {
         return <Redirect href="/(protected)/projects" />;
