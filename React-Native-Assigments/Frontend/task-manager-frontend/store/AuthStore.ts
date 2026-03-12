@@ -15,12 +15,13 @@ type AuthState = {
   token: string | null;
   loading: boolean;
   isAuthorized: boolean;
+  isHydrated: boolean;
 
+  setHydrated: (state: boolean) => void;
   setToken: (token: string) => void;
   logout: () => void;
   fetchMe: () => Promise<void>;
 };
-
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -28,6 +29,9 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       loading: false,
       isAuthorized: false,
+      isHydrated: false,
+
+      setHydrated: (state) => set({ isHydrated: state }),
 
       setToken: (token) => set({ token }),
 
@@ -41,15 +45,13 @@ export const useAuthStore = create<AuthState>()(
       fetchMe: async () => {
         try {
           const token = get().token;
-
           if (!token) return;
 
           set({ loading: true });
 
           const res = await axiosInstance.post("/auth/me");
-
           const { user, isAuthorized } = res.data.data;
-          //console.log(user,isAuthorized)
+
           if (!isAuthorized && user == null) {
             set({
               user: null,
@@ -85,6 +87,11 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       storage: createJSONStorage(() => AsyncStorage),
+
+      // ⭐ hydration callback
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true);
+      },
     }
   )
 );

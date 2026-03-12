@@ -64,7 +64,6 @@ export default function ProjectIndex() {
       const res = await axiosInstance.delete(`/projects/${id}`);
       if (res.status === 200) {
         showToast("Deleted Successfully", "success");
-        // Refresh the list after deletion
         fetchProjects(1, false);
       } else {
         showToast("Something Went Wrong", "error");
@@ -72,11 +71,11 @@ export default function ProjectIndex() {
     } catch (error) {
       showToast("Something Went Wrong", "error");
     }
-  }, [pagination.limit]); // Only recreate if limit changes
+  }, [pagination.limit]); 
 
   useFocusEffect(
     useCallback(() => {
-      fetchProjects(); // refetch on focus
+      fetchProjects(); 
     }, [deleteTasks])
   );
 
@@ -149,6 +148,7 @@ export default function ProjectIndex() {
     </TouchableOpacity>
   );
 
+
   return (
     <SafeAreaView style={ProjectStyle.safeArea}>
       <View style={ProjectStyle.container}>
@@ -164,8 +164,12 @@ export default function ProjectIndex() {
           </View>
         </View>
 
+    
         <FlatList
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: responsiveSize(90) }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: responsiveSize(90),
+          }}
           data={projects}
           keyExtractor={(item) => item._id}
           renderItem={renderItem}
@@ -179,14 +183,26 @@ export default function ProjectIndex() {
               <ActivityIndicator size="small" color="#000" style={{ margin: 10 }} />
             ) : null
           }
-          ListEmptyComponent={() => !loading && (
-            <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-              <Text>No task found for this Project.</Text>
+          ListEmptyComponent={() => (
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {loading ? (
+                <View>
+                  <ActivityIndicator size="small" color="#000" />
+                  <Text>Loading your projects.</Text>
+                </View>
+              ) : (
+                <Text>No projects found.</Text>
+              )}
             </View>
           )}
         />
 
-        {/* Floating Add Button */}
         <TouchableOpacity
           style={ProjectStyle.fab}
           onPress={() => router.push("/(protected)/projects/add-project")}

@@ -4,42 +4,59 @@ import { withDB } from "@/app/Utils/withDB";
 import { ApiResponse } from "@/app/Utils/ApiResponse";
 import { NextApiRequest, NextApiResponse } from "next";
 
-/**
- * Handler to manage Task and Getting All Task by Project.
- * Wrapped with withDB for connection management and withAuth for session validation.
- */
 async function getAllTaskbyProjects(
     req: NextApiRequest,
     res: NextApiResponse,
     userId: string
 ) {
     try {
-        //Taking the required status,priority from query and projectId from Body
-        const { status, priority } = req.query;
+        const { task } = req.query;
         const { projectId } = req.body;
 
-        //We Need the ProjectID for Filtering the Data
         if (!projectId) {
             return new ApiResponse(res, "ProjectId is required").send(400);
         }
 
-        //Adding Filters
-        const filter: any = {
-            projectId,
-        };
+        let filter: any = { projectId };
 
-        if (status && status !== "") {
-            filter.status = status;
+        /**
+         * CREATED TASKS
+         * Includes tasks created by user
+         * even if assigned to himself
+         */
+        if (task === "created") {
+            filter.userId = userId;
         }
 
-        if (priority && priority !== "") {
-            filter.priority = priority;
+        /**
+         * ASSIGNED TASKS
+         * Only tasks assigned to user
+         * but created by someone else
+         */
+        else if (task === "assigned") {
+            filter = {
+                projectId,
+                assignedTo: userId,
+                userId: { $ne: userId },
+            };
         }
-        //Only That Particular User will be able to see the User Data
-        filter.assignedTo = userId
 
-        //Querying the Filter and Populating the Required References
-        const tasks = await Task.find(filter).populate("userId projectId assignedTo","-password");
+        /**
+         * ALL TASKS (fallback)
+         */
+        else {
+            filter = {
+                projectId,
+                $or: [
+                    { userId: userId },
+                    { assignedTo: userId }
+                ],
+            };
+        }
+
+        const tasks = await Task.find(filter)
+            .populate("userId projectId assignedTo", "-password")
+            .lean();
 
         return new ApiResponse(res, "Tasks fetched successfully", tasks).send(200);
 

@@ -20,8 +20,7 @@ export const TaskListStyles = StyleSheet.create({
         backgroundColor: "#fff",
         padding: responsiveSize(16),
         borderRadius: responsiveSize(14),
-        marginBottom: responsiveSize(14),
-
+        margin:responsiveSize(8),
         shadowColor: "#000",
         shadowOpacity: 0.08,
         shadowRadius: 10,
@@ -157,5 +156,12 @@ export const TaskListStyles = StyleSheet.create({
         marginRight: responsiveSize(10),
         marginBottom: responsiveSize(12),
         padding: responsiveSize(20)
+    },
+    sectionTitle: {
+        fontSize: responsiveFont(18),
+        fontWeight: "700",
+        color: "#111827",
+        marginBottom: responsiveSize(10),
+        marginTop: responsiveSize(15),
     },
 });

@@ -97,5 +97,18 @@ export const UpdateTaskStyles = StyleSheet.create({
     datePicker: {
         width: "100%",
     },
+    disabledInput: {
+        backgroundColor: "#F3F4F6",
+        color: "#9CA3AF",
+    },
+
+    disabledDropdown: {
+        backgroundColor: "#F3F4F6",
+        opacity: 0.7,
+    },
+
+    disabledButton: {
+        backgroundColor: "#9CA3AF",
+    },
 });
 

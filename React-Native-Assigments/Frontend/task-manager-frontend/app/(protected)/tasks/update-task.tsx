@@ -17,6 +17,7 @@ import { UpdateTaskStyles as styles } from "@/styles/UpdateTaskStyles";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { useToast } from "@/providers/ToastProvider";
+import { useAuthStore } from "@/store/AuthStore";
 
 
 type FormData = {
@@ -67,6 +68,9 @@ export default function UpdateTask() {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [allUser, setAllUser] = useState<AssignedData>([])
     const { showToast } = useToast()
+    const user = useAuthStore((state) => state.user)
+    const [canEditAll, setCanEditAll] = useState(false)
+    const [canChangeStatus, setCanChangeStatus] = useState(false)
 
     const {
         control,
@@ -102,6 +106,27 @@ export default function UpdateTask() {
             setValue("assignedTo", task.assignedTo || "");
             setValue("projectId", task.projectId || "");
             setValue("dueDate", task.dueDate.split("T")[0]); // YYYY-MM-DD
+
+            // if (task.userId === user?._id && task.assignedTo === user?._id) {
+            //     setIsEditable(true)
+            // } else {
+            //     setIsEditable(false)
+            // }
+            if (user?._id === task.userId) {
+                // Creator → full edit
+                setCanEditAll(true)
+                setCanChangeStatus(true)
+            }
+            else if (user?._id === task.assignedTo) {
+                // Assignee → status only
+                setCanEditAll(false)
+                setCanChangeStatus(true)
+            }
+            else {
+                // Other users → read only
+                setCanEditAll(false)
+                setCanChangeStatus(false)
+            }
         } catch (error) {
             showToast("Error in Fetching Task", "error")
             console.error("Error fetching task:", error);
@@ -185,10 +210,15 @@ export default function UpdateTask() {
                     rules={{ required: "Title is required" }}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
-                            style={[styles.input, errors.title && styles.inputError]}
+                            style={[
+                                styles.input,
+                                errors.title && styles.inputError,
+                                !canEditAll && styles.disabledInput
+                            ]}
                             onBlur={onBlur}
                             onChangeText={onChange}
                             value={value}
+                            editable={canEditAll}
                             placeholder="Enter task title"
                         />
                     )}
@@ -203,11 +233,17 @@ export default function UpdateTask() {
                     rules={{ required: "Description is required" }}
                     render={({ field: { onChange, value } }) => (
                         <TextInput
-                            style={[styles.input, { height: 80 }]}
+                            style={[
+                                styles.input,
+                                { height: 80 },
+                                !canEditAll && styles.disabledInput
+                            ]}
                             multiline
                             textAlignVertical="top"
                             value={value}
                             onChangeText={onChange}
+                            editable={canEditAll}
+                        //editable={user?._id}
                         />
                     )}
                 />
@@ -222,12 +258,16 @@ export default function UpdateTask() {
                             name="status"
                             render={({ field: { onChange, value } }) => (
                                 <Dropdown
-                                    style={styles.dropdown}
+                                    style={[
+                                        styles.dropdown,
+                                        !canChangeStatus && styles.disabledDropdown
+                                    ]}
                                     data={statusOptions}
                                     labelField="label"
                                     valueField="value"
                                     placeholder="Select Status"
                                     value={value}
+                                    disable={!canChangeStatus}
                                     onChange={(item) => onChange(item.value)}
                                 />
                             )}
@@ -242,12 +282,16 @@ export default function UpdateTask() {
                             name="priority"
                             render={({ field: { onChange, value } }) => (
                                 <Dropdown
-                                    style={styles.dropdown}
+                                    style={[
+                                        styles.dropdown,
+                                        !canEditAll && styles.disabledDropdown
+                                    ]}
                                     data={priorityOptions}
                                     labelField="label"
                                     valueField="value"
                                     placeholder="Select Priority"
                                     value={value}
+                                    disable={!canEditAll}
                                     onChange={(item) => onChange(item.value)}
                                 />
                             )}
@@ -263,12 +307,16 @@ export default function UpdateTask() {
                         name="assignedTo"
                         render={({ field: { onChange, value } }) => (
                             <Dropdown
-                                style={styles.dropdown}
+                                style={[
+                                    styles.dropdown,
+                                    !canEditAll && styles.disabledDropdown
+                                ]}
                                 data={allUser.map(user => ({ label: user.name, value: user._id }))}
                                 labelField="label"
                                 valueField="value"
                                 placeholder="Select User"
                                 value={value}
+                                disable={!canEditAll}
                                 onChange={(item) => onChange(item.value)}
                             />
                         )}
@@ -283,8 +331,12 @@ export default function UpdateTask() {
                     render={({ field: { onChange, value } }) => (
                         <>
                             <TouchableOpacity
-                                style={styles.input}
+                                style={[
+                                    styles.input,
+                                    !canEditAll && styles.disabledInput
+                                ]}
                                 onPress={() => setShowDatePicker(!showDatePicker)}
+                                disabled={!canEditAll}
                             >
                                 <Text style={{ color: value ? "#000" : "#999" }}>
                                     {value || "Select Date"}
@@ -317,6 +369,7 @@ export default function UpdateTask() {
                 <TouchableOpacity
                     style={styles.button}
                     onPress={handleSubmit(onSubmit)}
+                    disabled={!(canEditAll || canChangeStatus)}
                 >
                     <Text style={styles.buttonText}>Update Task</Text>
                 </TouchableOpacity>

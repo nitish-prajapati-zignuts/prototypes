@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { Dropdown } from "react-native-element-dropdown";
+import { useAuthStore } from "@/store/AuthStore";
 
 
 // Types based on API
@@ -78,6 +79,7 @@ export default function TasksList() {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
   // Fetch tasks from API
   const fetchTasks = async (id: string) => {
     try {
@@ -261,4 +263,3 @@ export default function TasksList() {
     </View>
   );
 }
-

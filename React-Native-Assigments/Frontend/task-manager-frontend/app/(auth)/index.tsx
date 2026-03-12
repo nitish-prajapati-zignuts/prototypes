@@ -1,5 +1,5 @@
 import { AuthStyles } from "@/styles/AuthStyles";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import {
     Text,
     TextInput,
@@ -34,6 +34,22 @@ export default function Login() {
     });
     const setTokenFromBackend = useAuthStore((state) => state.setToken)
     const { showToast } = useToast()
+
+    const token = useAuthStore((state) => state.token);
+    const isAuthorized = useAuthStore((state) => state.isAuthorized);
+    console.log("Hi Loading Here")
+
+
+    // If user already logged in → redirect
+    // if (token && isAuthorized) {
+    //     return <Redirect href="/(protected)/projects" />;
+    // }
+
+    useEffect(() => {
+        if (token && isAuthorized) {
+            <Redirect href="/(protected)/projects" />
+        }
+    }, [token && isAuthorized])
 
 
     const onSubmit = async (data: FormData) => {
@@ -83,7 +99,7 @@ export default function Login() {
                                     style={AuthStyles.input}
                                     placeholder="Email"
                                     placeholderTextColor="#999"
-                                    keyboardType="email-address" //This is causing flicker due to keyboard behaviour in Native Screens
+                                    keyboardType="email-address" //This is causing flicker due to keyboard behaviour in React Native Screens
                                     value={value}
                                     autoCapitalize="none"
                                     autoCorrect={false}
