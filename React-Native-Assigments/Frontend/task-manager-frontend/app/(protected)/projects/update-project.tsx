@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -9,73 +9,19 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { useForm, Controller } from "react-hook-form";
-import { router, useLocalSearchParams } from "expo-router";
+import { Controller } from "react-hook-form";
+import { useLocalSearchParams } from "expo-router";
 import { AddProjectScreenStyles as styles } from "@/styles/AddProject";
-import { axiosInstance } from "@/utils/axiosInstance";
-import { useToast } from "@/providers/ToastProvider";
-
-type FormData = {
-  title: string;
-  description: string;
-};
+import { useUpdateProject } from "@/hooks/ProjectHooks/useUpdateProject";
 
 export default function UpdateProject() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const { showToast } = useToast()
-  
-  
+  const { form, loading, submitting, onSubmit } = useUpdateProject(id);
+
   const {
     control,
-    handleSubmit,
-    reset,
     formState: { errors },
-  } = useForm<FormData>({
-    defaultValues: {
-      title: "",
-      description: "",
-    },
-  });
-
-  const fetchProjectDetailsById = async (projectId: string) => {
-    try {
-      setLoading(true);
-      const res = await axiosInstance.get<{ success: boolean; data: FormData }>(
-        `/projects/${projectId}`
-      );
-
-      if (res.data.success) {
-        reset(res.data.data);
-      }
-    } catch (error) {
-      console.log("Fetch Project Error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (id) {
-      fetchProjectDetailsById(id);
-    }
-  }, [id]);
-
-  const onSubmit = async (data: FormData) => {
-    try {
-      setSubmitting(true);
-      const res = await axiosInstance.put(`/projects/${id}`, data);
-      if (res.data.success) {
-        showToast("Data Updated Successfully", "success")
-      }
-    } catch (error) {
-      showToast("Data Could Not Updated Successfully", "error")
-      console.log("Update Project Error:", error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  } = form;
 
   if (loading) {
     return (
@@ -135,7 +81,7 @@ export default function UpdateProject() {
 
           <TouchableOpacity
             style={[styles.saveButton, submitting && { opacity: 0.7 }]}
-            onPress={handleSubmit(onSubmit)}
+            onPress={onSubmit}
             disabled={submitting}
           >
             {submitting ? (

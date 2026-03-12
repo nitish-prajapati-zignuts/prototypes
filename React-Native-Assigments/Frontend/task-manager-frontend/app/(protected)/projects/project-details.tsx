@@ -1,47 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
     View,
     Text,
-    StyleSheet,
     StatusBar,
     ActivityIndicator,
+    TouchableOpacity,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { axiosInstance } from "@/utils/axiosInstance";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ProjectDetailsStyles as styles } from "@/styles/ProjectDetails";
-import {ProjectData} from "@/utils/types/project.details"
-
+import { useProjectDetails } from "@/hooks/ProjectHooks/useProjectDetails";
 
 export default function ProjectDetails() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const [project, setProject] = useState<ProjectData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchProject = async () => {
-            if (!id) return;
-
-            try {
-                setLoading(true);
-                const res = await axiosInstance.get(`/projects/${id}`);
-                setProject(res.data.data); 
-            } catch (err) {
-                console.error("Fetch project error:", err);
-                setError("Failed to load project");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProject();
-    }, [id]);
+    const { project, loading, error, retry } = useProjectDetails(id);
 
     if (loading) {
         return (
             <SafeAreaView style={styles.safeArea}>
-                <ActivityIndicator size="large" color="#3B82F6" style={{ flex: 1 }} />
+                <View style={styles.centerContainer}>
+                    <ActivityIndicator size="large" color="#3B82F6" />
+                </View>
             </SafeAreaView>
         );
     }
@@ -49,8 +28,11 @@ export default function ProjectDetails() {
     if (error || !project) {
         return (
             <SafeAreaView style={styles.safeArea}>
-                <View style={styles.container}>
-                    <Text style={{ color: "red", fontSize: 16 }}>{error || "Project not found"}</Text>
+                <View style={styles.centerContainer}>
+                    <Text style={styles.errorText}>{error || "Project not found"}</Text>
+                    <TouchableOpacity style={styles.retryButton} onPress={retry}>
+                        <Text style={styles.retryText}>Retry</Text>
+                    </TouchableOpacity>
                 </View>
             </SafeAreaView>
         );
@@ -60,7 +42,6 @@ export default function ProjectDetails() {
         <SafeAreaView style={styles.safeArea}>
             <StatusBar barStyle="dark-content" />
             <View style={styles.container}>
-
                 <View style={styles.header}>
                     <Text style={styles.title}>{project.title}</Text>
                 </View>
@@ -99,4 +80,3 @@ export default function ProjectDetails() {
         </SafeAreaView>
     );
 }
-

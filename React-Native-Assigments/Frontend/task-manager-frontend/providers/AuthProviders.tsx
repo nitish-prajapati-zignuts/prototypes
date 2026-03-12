@@ -3,13 +3,9 @@ import { useEffect } from "react";
 
 export default function AuthProvider({ children }: any) {
   const fetchMe = useAuthStore((state) => state.fetchMe);
-  const hello = () => {
-    console.log("Hi");
-    
-  }
   useEffect(() => {
-    //fetchMe();
-    hello()
+    fetchMe();
+    //hello()
   }, []);
 
   return children;

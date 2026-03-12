@@ -110,5 +110,27 @@ export const UpdateTaskStyles = StyleSheet.create({
     disabledButton: {
         backgroundColor: "#9CA3AF",
     },
+    centerContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f5f6fa",
+        padding: moderateScale(20),
+    },
+
+    errorHeader: {
+        fontSize: responsiveFont(18),
+        fontWeight: "bold",
+        color: "#1e293b",
+        textAlign: "center",
+    },
+
+    errorSubtext: {
+        fontSize: responsiveFont(14),
+        color: "#64748b",
+        textAlign: "center",
+        marginTop: moderateScale(8),
+        marginBottom: moderateScale(20),
+    },
 });
 

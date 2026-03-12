@@ -12,9 +12,6 @@ export default function RootLayout() {
         <ToastProvider>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-
-
-            {/* <Stack.Screen name="(auth)/register" options={{ title: 'Register' }} /> */}
           </Stack>
           <StatusBar style="auto" />
         </ToastProvider>

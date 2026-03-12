@@ -1,136 +1,23 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    ScrollView,
-    KeyboardAvoidingView,
-    Platform,
-    ActivityIndicator,
+    View, Text, TextInput, TouchableOpacity, ScrollView,
+    KeyboardAvoidingView, Platform, ActivityIndicator,
 } from "react-native";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Dropdown } from "react-native-element-dropdown";
+import { useLocalSearchParams } from "expo-router";
+
 import { UpdateTaskStyles as styles } from "@/styles/UpdateTaskStyles";
-import { useToast } from "@/providers/ToastProvider";
-import { axiosInstance } from "@/utils/axiosInstance";
-import { router, useLocalSearchParams } from "expo-router";
-
-
-
-type FormData = {
-    title: string;
-    description: string;
-    status: string;
-    priority: string;
-    assignedTo: string;
-    dueDate: string;
-};
-
-const defaultValues: FormData = {
-    title: "",
-    description: "",
-    status: "",
-    priority: "",
-    assignedTo: "",
-    dueDate: "",
-};
-
-type User = {
-    _id: string
-    name: string
-    email: string
-}
-
-type AssignedData = User[]
-
-type Project = {
-    _id: string
-    title: string,
-    description: string
-}
-
-type ProjectDetails = Project[]
-
-const statusOptions = [
-    { label: "Todo", value: "TODO" },
-    { label: "In Progress", value: "IN_PROGRESS" },
-    { label: "Done", value: "DONE" },
-];
-
-const priorityOptions = [
-    { label: "Low", value: "LOW" },
-    { label: "Medium", value: "MEDIUM" },
-    { label: "High", value: "HIGH" },
-];
+import { priorityOptions, statusOptions, useCreateTask } from "@/hooks/TaskHooks/useCreateTask";
+import { responsiveSize } from "@/styles/AuthStyles";
 
 export default function CreateTasks() {
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-        reset
-    } = useForm<FormData>({ defaultValues });
-    const { showToast } = useToast()
-    const { projectId } = useLocalSearchParams()
-    console.log("Create-Task", projectId)
-
+    const { projectId } = useLocalSearchParams();
+    const { form, loading, allUsers, onSubmit } = useCreateTask(projectId);
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [loading, setLoading] = useState(false)
-    const [allUser, setAllUser] = useState<AssignedData>([])
-    const [projectDetails, setAllProjectDetails] = useState<ProjectDetails>([])
 
-    const onSubmit = async (data: FormData) => {
-        console.log("Created Task:", data);
-        console.log("projectId", projectId)
-
-        try {
-            const updatedData = {
-                ...data,
-                projectId: projectId
-            }
-            const res = await axiosInstance.post("/tasks/createTask",
-                updatedData
-            )
-            reset()
-            router.back()
-            console.log(res.status)
-
-        } catch (error) {
-            showToast("Something went Wrong", "error")
-            console.log(error)
-        } finally {
-            setLoading(false)
-        }
-    };
-
-    //Get All Projects 
-
-    //Get All Assigned User
-    const fetchUsers = useCallback(async () => {
-        setLoading(true)
-
-        try {
-            const res = await axiosInstance.get("/tasks/AssignedUser")
-            const data = res.data.data as AssignedData
-
-            setAllUser(data)
-        } catch (error) {
-            showToast("Error in Fetching Users", "error")
-
-            console.log("Something Went Wrong", error)
-        } finally {
-            setLoading(false)
-        }
-    }, [])
-
-    useEffect(() => {
-        Promise.all([
-            //fetchProjects(),
-            fetchUsers()
-        ])
-    }, []);
+    const { control, formState: { errors } } = form;
 
     return (
         <KeyboardAvoidingView
@@ -156,9 +43,7 @@ export default function CreateTasks() {
                         />
                     )}
                 />
-                {errors.title && (
-                    <Text style={styles.errorText}>{errors.title.message}</Text>
-                )}
+                {errors.title && <Text style={styles.errorText}>{errors.title.message}</Text>}
 
                 {/* DESCRIPTION */}
                 <Text style={styles.label}>Description</Text>
@@ -168,7 +53,7 @@ export default function CreateTasks() {
                     rules={{ required: "Description is required" }}
                     render={({ field: { onChange, value } }) => (
                         <TextInput
-                            style={[styles.input]}
+                            style={styles.input}
                             multiline
                             textAlignVertical="top"
                             placeholder="Enter description"
@@ -178,15 +63,11 @@ export default function CreateTasks() {
                         />
                     )}
                 />
-                {errors.description && (
-                    <Text style={styles.errorText}>{errors.description.message}</Text>
-                )}
 
-                {/* STATUS + PRIORITY */}
+                {/* STATUS & PRIORITY ROW */}
                 <View style={styles.row}>
                     <View style={{ flex: 1, marginRight: 10 }}>
                         <Text style={styles.label}>Status</Text>
-
                         <Controller
                             control={control}
                             name="status"
@@ -203,14 +84,10 @@ export default function CreateTasks() {
                                 />
                             )}
                         />
-                        {errors.status && (
-                            <Text style={styles.errorText}>{errors.status.message}</Text>
-                        )}
                     </View>
 
                     <View style={{ flex: 1 }}>
                         <Text style={styles.label}>Priority</Text>
-
                         <Controller
                             control={control}
                             name="priority"
@@ -227,9 +104,6 @@ export default function CreateTasks() {
                                 />
                             )}
                         />
-                        {errors.priority && (
-                            <Text style={styles.errorText}>{errors.priority.message}</Text>
-                        )}
                     </View>
                 </View>
 
@@ -242,7 +116,7 @@ export default function CreateTasks() {
                     render={({ field: { onChange, value } }) => (
                         <Dropdown
                             style={styles.dropdown}
-                            data={allUser.map(user => ({ label: user.name, value: user._id }))}
+                            data={allUsers.map(user => ({ label: user.name, value: user._id }))}
                             labelField="label"
                             valueField="value"
                             placeholder="Select Assignee"
@@ -251,11 +125,6 @@ export default function CreateTasks() {
                         />
                     )}
                 />
-                {errors.assignedTo && (
-                    <Text style={styles.errorText}>{errors.assignedTo.message}</Text>
-                )}
-
-
 
                 {/* DATE PICKER */}
                 <Text style={styles.label}>Due Date</Text>
@@ -266,51 +135,51 @@ export default function CreateTasks() {
                     render={({ field: { onChange, value } }) => (
                         <>
                             <TouchableOpacity
-                                style={styles.input}
-                                onPress={() => setShowDatePicker(true)}
+                                style={[styles.input, { justifyContent: 'center' }]} // Ensure vertical alignment
+                                onPress={() => setShowDatePicker(!showDatePicker)}
+                                activeOpacity={0.7}
                             >
-                                <Text style={{ color: value ? "#000" : "#999" }}>
+                                <Text style={{
+                                    color: value ? "#1A1A1A" : "#999", // Darker black for light mode visibility
+                                    fontSize: responsiveSize(14)
+                                }}>
                                     {value || "Select Date"}
                                 </Text>
                             </TouchableOpacity>
 
                             {showDatePicker && (
-                                <View style={styles.pickerContainer}>
-                                    <DateTimePicker
-                                        value={value ? new Date(value) : new Date()}
-                                        mode="date"
-                                        display={
-                                            Platform.OS === "ios" ? "spinner" : "calendar"
-                                        }
-                                        themeVariant="light"
-                                        style={styles.datePicker}
-                                        onChange={(event, selectedDate) => {
-                                            setShowDatePicker(false);
+                                <DateTimePicker
+                                    value={value ? new Date(value) : new Date()}
+                                    mode="date"
+                                    style={styles.datePicker}
+                                    display={Platform.OS === "ios" ? "spinner" : "default"} // "inline" is often better for visibility on iOS
+                                    themeVariant="light" // Force light theme to prevent "Invisible" white-on-white text
+                                    onChange={(event, selectedDate) => {
+                                        // On Android, the picker closes automatically; on iOS, you might need a "Done" button
+                                        if (Platform.OS === 'android') setShowDatePicker(false);
 
-                                            if (selectedDate) {
-                                                const formatted =
-                                                    selectedDate.toISOString().split("T")[0];
-                                                onChange(formatted);
-                                            }
-                                        }}
-                                    />
-                                </View>
+                                        if (event.type === "set" && selectedDate) {
+                                            onChange(selectedDate.toISOString().split("T")[0]);
+                                        } else {
+                                            setShowDatePicker(!showDatePicker);
+                                        }
+                                    }}
+                                />
                             )}
                         </>
                     )}
                 />
-                {errors.dueDate && (
-                    <Text style={styles.errorText}>{errors.dueDate.message}</Text>
-                )}
 
-                {/* BUTTON */}
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={handleSubmit(onSubmit)}
+                    onPress={onSubmit}
+                    disabled={loading}
                 >
-                    {loading ? <ActivityIndicator /> : (<Text style={styles.buttonText}>Create Task</Text>)}
+                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Create Task</Text>}
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>
     );
 }
+
+

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
@@ -7,193 +7,45 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
-    StyleSheet,
     ActivityIndicator,
 } from "react-native";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Dropdown } from "react-native-element-dropdown";
+import { useLocalSearchParams } from "expo-router";
+
 import { UpdateTaskStyles as styles } from "@/styles/UpdateTaskStyles";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { axiosInstance } from "@/utils/axiosInstance";
-import { useToast } from "@/providers/ToastProvider";
-import { useAuthStore } from "@/store/AuthStore";
-
-
-type FormData = {
-    title: string;
-    description: string;
-    status: string;
-    priority: string;
-    assignedTo: string;
-    projectId: string;
-    dueDate: string;
-};
-
-type User = {
-    _id: string
-    name: string
-    email: string
-}
-
-type AssignedData = User[]
-
-const defaultValues: FormData = {
-    title: "Adding New Task #7",
-    description: "Adding New Task Description #7",
-    status: "TODO",
-    priority: "LOW",
-    assignedTo: "69afe153f668d5f94dd3fc7a",
-    projectId: "69aff4e17d9e40d28484b66b",
-    dueDate: "2026-03-28",
-};
-
-const statusOptions = [
-    { label: "Todo", value: "TODO" },
-    { label: "In Progress", value: "IN_PROGRESS" },
-    { label: "Done", value: "DONE" },
-];
-
-const priorityOptions = [
-    { label: "Low", value: "LOW" },
-    { label: "Medium", value: "MEDIUM" },
-    { label: "High", value: "HIGH" },
-];
-
-
+import { useUpdateTask, statusOptions, priorityOptions } from "@/hooks/TaskHooks/useUpdateTask";
 
 export default function UpdateTask() {
-    const { id } = useLocalSearchParams(); // Task ID from route
-    const [loading, setLoading] = useState(true);
+    const { id } = useLocalSearchParams();
+    const { form, loading, error, allUsers, permissions, retry, onSubmit } = useUpdateTask(id);
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [allUser, setAllUser] = useState<AssignedData>([])
-    const { showToast } = useToast()
-    const user = useAuthStore((state) => state.user)
-    const [canEditAll, setCanEditAll] = useState(false)
-    const [canChangeStatus, setCanChangeStatus] = useState(false)
 
-    const {
-        control,
-        handleSubmit,
-        setValue,
-        formState: { errors },
-    } = useForm<FormData>({
-        defaultValues: {
-            title: "",
-            description: "",
-            status: "TODO",
-            priority: "LOW",
-            assignedTo: "",
-            projectId: "",
-            dueDate: "",
-        },
-    });
-
-    // Fetch task by ID
-    const fetchTask = async (taskId: string) => {
-        try {
-            setLoading(true);
-            const res = await axiosInstance.get(`/tasks/${taskId}`);
-            const task = res.data.data;
-
-            console.log(task)
-
-            // Populate the form
-            setValue("title", task.title);
-            setValue("description", task.description);
-            setValue("status", task.status);
-            setValue("priority", task.priority);
-            setValue("assignedTo", task.assignedTo || "");
-            setValue("projectId", task.projectId || "");
-            setValue("dueDate", task.dueDate.split("T")[0]); // YYYY-MM-DD
-
-            // if (task.userId === user?._id && task.assignedTo === user?._id) {
-            //     setIsEditable(true)
-            // } else {
-            //     setIsEditable(false)
-            // }
-            if (user?._id === task.userId) {
-                // Creator → full edit
-                setCanEditAll(true)
-                setCanChangeStatus(true)
-            }
-            else if (user?._id === task.assignedTo) {
-                // Assignee → status only
-                setCanEditAll(false)
-                setCanChangeStatus(true)
-            }
-            else {
-                // Other users → read only
-                setCanEditAll(false)
-                setCanChangeStatus(false)
-            }
-        } catch (error) {
-            showToast("Error in Fetching Task", "error")
-            console.error("Error fetching task:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    //Drop Down for Assigning Changes
-    const fetchUsers = useCallback(async () => {
-        setLoading(true)
-
-        try {
-            const res = await axiosInstance.get("/tasks/AssignedUser")
-            const data = res.data.data as AssignedData
-
-            setAllUser(data)
-        } catch (error) {
-            showToast("Error in Fetching Users", "error")
-
-            console.log("Something Went Wrong", error)
-        }
-    }, [])
-
-    useEffect(() => {
-        if (!id) return;
-
-        const fetchTaskPromise = async () => {
-            try {
-                //Fetching Multiple API Calls
-                await Promise.all([
-                    fetchTask(id as string),
-                    fetchUsers()
-                ]);
-            } catch (error) {
-                console.error("Error fetching tasks:", error);
-            }
-        };
-
-        fetchTaskPromise();
-    }, [id]);
-
-    const onSubmit = async (data: FormData) => {
-        try {
-            const updateddata = {
-                taskId: id,
-                ...data
-            }
-            const res = await axiosInstance.put(`/tasks/${id}`, updateddata);
-            console.log("Task updated:", res.data);
-            showToast("Task Updated Successfully", "success")
-
-            router.back();
-        } catch (error) {
-            showToast("Error in Updating Task", "error")
-
-            console.error("Error updating task:", error);
-        }
-    };
+    const { control, formState: { errors } } = form;
+    const { canEditAll, canChangeStatus } = permissions;
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <View style={styles.centerContainer}>
                 <ActivityIndicator size="large" color="#000" />
+                <Text style={{ marginTop: 10 }}>Loading Task...</Text>
             </View>
         );
     }
+
+    if (error) {
+        return (
+            <View style={styles.centerContainer}>
+                <Text style={styles.errorHeader}>Oops! Something went wrong.</Text>
+                <Text style={styles.errorSubtext}>We couldn't fetch the task details.</Text>
+                <TouchableOpacity style={styles.button} onPress={retry}>
+                    <Text style={styles.buttonText}>Try Again</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -208,18 +60,16 @@ export default function UpdateTask() {
                     control={control}
                     name="title"
                     rules={{ required: "Title is required" }}
-                    render={({ field: { onChange, onBlur, value } }) => (
+                    render={({ field: { onChange, value } }) => (
                         <TextInput
                             style={[
                                 styles.input,
-                                errors.title && styles.inputError,
+                                errors.title && { borderColor: 'red' },
                                 !canEditAll && styles.disabledInput
                             ]}
-                            onBlur={onBlur}
                             onChangeText={onChange}
                             value={value}
                             editable={canEditAll}
-                            placeholder="Enter task title"
                         />
                     )}
                 />
@@ -230,7 +80,6 @@ export default function UpdateTask() {
                 <Controller
                     control={control}
                     name="description"
-                    rules={{ required: "Description is required" }}
                     render={({ field: { onChange, value } }) => (
                         <TextInput
                             style={[
@@ -239,33 +88,26 @@ export default function UpdateTask() {
                                 !canEditAll && styles.disabledInput
                             ]}
                             multiline
-                            textAlignVertical="top"
                             value={value}
                             onChangeText={onChange}
                             editable={canEditAll}
-                        //editable={user?._id}
                         />
                     )}
                 />
 
-                {/* STATUS DROPDOWN */}
+                {/* STATUS & PRIORITY ROW */}
                 <View style={styles.row}>
                     <View style={{ flex: 1, marginRight: 10 }}>
                         <Text style={styles.label}>Status</Text>
-
                         <Controller
                             control={control}
                             name="status"
                             render={({ field: { onChange, value } }) => (
                                 <Dropdown
-                                    style={[
-                                        styles.dropdown,
-                                        !canChangeStatus && styles.disabledDropdown
-                                    ]}
+                                    style={[styles.dropdown, !canChangeStatus && styles.disabledDropdown]}
                                     data={statusOptions}
                                     labelField="label"
                                     valueField="value"
-                                    placeholder="Select Status"
                                     value={value}
                                     disable={!canChangeStatus}
                                     onChange={(item) => onChange(item.value)}
@@ -276,20 +118,15 @@ export default function UpdateTask() {
 
                     <View style={{ flex: 1 }}>
                         <Text style={styles.label}>Priority</Text>
-
                         <Controller
                             control={control}
                             name="priority"
                             render={({ field: { onChange, value } }) => (
                                 <Dropdown
-                                    style={[
-                                        styles.dropdown,
-                                        !canEditAll && styles.disabledDropdown
-                                    ]}
+                                    style={[styles.dropdown, !canEditAll && styles.disabledDropdown]}
                                     data={priorityOptions}
                                     labelField="label"
                                     valueField="value"
-                                    placeholder="Select Priority"
                                     value={value}
                                     disable={!canEditAll}
                                     onChange={(item) => onChange(item.value)}
@@ -299,31 +136,25 @@ export default function UpdateTask() {
                     </View>
                 </View>
 
-                <View style={{ flex: 1 }}>
-                    <Text style={styles.label}>Change Assignee</Text>
+                {/* ASSIGNEE */}
+                <Text style={styles.label}>Change Assignee</Text>
+                <Controller
+                    control={control}
+                    name="assignedTo"
+                    render={({ field: { onChange, value } }) => (
+                        <Dropdown
+                            style={[styles.dropdown, !canEditAll && styles.disabledDropdown]}
+                            data={allUsers.map(u => ({ label: u.name, value: u._id }))}
+                            labelField="label"
+                            valueField="value"
+                            value={value}
+                            disable={!canEditAll}
+                            onChange={(item) => onChange(item.value)}
+                        />
+                    )}
+                />
 
-                    <Controller
-                        control={control}
-                        name="assignedTo"
-                        render={({ field: { onChange, value } }) => (
-                            <Dropdown
-                                style={[
-                                    styles.dropdown,
-                                    !canEditAll && styles.disabledDropdown
-                                ]}
-                                data={allUser.map(user => ({ label: user.name, value: user._id }))}
-                                labelField="label"
-                                valueField="value"
-                                placeholder="Select User"
-                                value={value}
-                                disable={!canEditAll}
-                                onChange={(item) => onChange(item.value)}
-                            />
-                        )}
-                    />
-                </View>
-
-                {/* DATE PICKER */}
+                {/* DUE DATE */}
                 <Text style={styles.label}>Due Date</Text>
                 <Controller
                     control={control}
@@ -366,9 +197,13 @@ export default function UpdateTask() {
                     )}
                 />
 
+                {/* SUBMIT BUTTON */}
                 <TouchableOpacity
-                    style={styles.button}
-                    onPress={handleSubmit(onSubmit)}
+                    style={[
+                        styles.button,
+                        !(canEditAll || canChangeStatus) && { backgroundColor: '#ccc' }
+                    ]}
+                    onPress={onSubmit}
                     disabled={!(canEditAll || canChangeStatus)}
                 >
                     <Text style={styles.buttonText}>Update Task</Text>

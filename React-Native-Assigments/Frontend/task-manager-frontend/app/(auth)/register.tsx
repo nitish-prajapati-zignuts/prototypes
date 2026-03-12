@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Text,
   TextInput,
@@ -6,95 +7,76 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useForm, Controller } from "react-hook-form";
-import { AuthStyles } from "@/styles/AuthStyles";
+import { Controller } from "react-hook-form";
 import { router } from "expo-router";
-
-type FormData = {
-  name: string;
-  email: string;
-  password: string;
-};
+import { AuthStyles as styles } from "@/styles/AuthStyles";
+import { useRegister } from "@/hooks/Auth/useRegister";
 
 export default function Register() {
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>();
-
-  const onSubmit = (data: FormData) => {
-    console.log("Form Data:", data);
-  };
+  const { control, errors, loading, onSubmit } = useRegister();
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
-          contentContainerStyle={AuthStyles.container}
+          contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
         >
-          <View style={{ width: "100%", alignItems: "center" }}>
+          <View style={styles.innerContainer}>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>Register to get started</Text>
 
-            <Text style={AuthStyles.title}>Create Account</Text>
-            <Text style={AuthStyles.subtitle}>Register to get started</Text>
-
-            {/* Name */}
+            <Text style={styles.label}>Full Name</Text>
             <Controller
               control={control}
               name="name"
               rules={{ required: "Name is required" }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  style={AuthStyles.input}
-                  placeholder="Full Name"
+                  style={styles.input}
+                  placeholder="John Doe"
                   placeholderTextColor="#999"
                   value={value}
                   onChangeText={onChange}
                 />
               )}
             />
+            {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
 
-            {errors.name && (
-              <Text style={{ color: "red", marginBottom: 10 }}>
-                {errors.name.message}
-              </Text>
-            )}
-
-            {/* Email */}
+            <Text style={styles.label}>Email Address</Text>
             <Controller
               control={control}
               name="email"
               rules={{ required: "Email is required" }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  style={AuthStyles.input}
-                  placeholder="Email"
+                  style={styles.input}
+                  placeholder="name@example.com"
                   keyboardType="email-address"
+                  autoCapitalize="none"
                   placeholderTextColor="#999"
                   value={value}
                   onChangeText={onChange}
                 />
               )}
             />
+            {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
-            {errors.email && (
-              <Text style={{ color: "red", marginBottom: 10 }}>
-                {errors.email.message}
-              </Text>
-            )}
-
-            {/* Password */}
+            <Text style={styles.label}>Password</Text>
             <Controller
               control={control}
               name="password"
               rules={{ required: "Password is required", minLength: 6 }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  style={AuthStyles.input}
-                  placeholder="Password"
+                  style={styles.input}
+                  placeholder="Minimum 6 characters"
                   secureTextEntry
                   placeholderTextColor="#999"
                   value={value}
@@ -102,24 +84,19 @@ export default function Register() {
                 />
               )}
             />
-            {errors.password && (
-              <Text style={{ color: "red", marginBottom: 10 }}>
-                {errors.password.message}
-              </Text>
-            )}
+            {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
             <TouchableOpacity
-              style={AuthStyles.button}
-              onPress={handleSubmit(onSubmit)}
+              style={[styles.button, loading && styles.buttonDisabled]}
+              onPress={onSubmit}
+              disabled={loading}
             >
-              <Text style={AuthStyles.buttonText}>Register</Text>
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Register</Text>}
             </TouchableOpacity>
 
-            <Text onPress={() => router.replace("/(auth)")} style={AuthStyles.footerText}>
-              Already have an account?{" "}
-              <Text style={AuthStyles.linkText}>Login</Text>
+            <Text onPress={() => router.replace("/(auth)")} style={styles.footerText}>
+              Already have an account? <Text style={styles.linkText}>Login</Text>
             </Text>
-
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

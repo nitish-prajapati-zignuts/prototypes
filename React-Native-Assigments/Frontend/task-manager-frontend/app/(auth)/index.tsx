@@ -1,5 +1,5 @@
-import { AuthStyles } from "@/styles/AuthStyles";
-import { Redirect, router } from "expo-router";
+
+import React from "react";
 import {
     Text,
     TextInput,
@@ -10,124 +10,56 @@ import {
     ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useForm, Controller } from "react-hook-form";
-import { authApi } from "@/utils/axiosInstance";
-import { useAuthStore } from "@/store/AuthStore";
-import { useToast } from "@/providers/ToastProvider";
-import { useEffect, useState } from "react";
-
-type FormData = {
-    email: string;
-    password: string;
-};
+import { Controller } from "react-hook-form";
+import { router } from "expo-router";
+import { AuthStyles as styles } from "@/styles/AuthStyles";
+import { useLogin } from "@/hooks/Auth/useLogin";
 
 export default function Login() {
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<FormData>({
-        defaultValues: {
-            email: "",
-            password: ""
-        }
-    });
-    const setTokenFromBackend = useAuthStore((state) => state.setToken)
-    const { showToast } = useToast()
-
-    const token = useAuthStore((state) => state.token);
-    const isAuthorized = useAuthStore((state) => state.isAuthorized);
-    console.log("Hi Loading Here")
-
-
-    // If user already logged in → redirect
-    // if (token && isAuthorized) {
-    //     return <Redirect href="/(protected)/projects" />;
-    // }
-
-    useEffect(() => {
-        if (token && isAuthorized) {
-            <Redirect href="/(protected)/projects" />
-        }
-    }, [token && isAuthorized])
-
-
-    const onSubmit = async (data: FormData) => {
-        console.log("Login Data:", data);
-        const response = await authApi.post("/login", {
-            email: data.email,
-            password: data.password
-        })
-
-        if (response.status === 200) {
-            const token = response.data.data.token
-            console.log(token)
-            setTokenFromBackend(token)
-            showToast(response.data.message, "success")
-            router.push("/(protected)/projects")
-        } else {
-            showToast(response.data.message, "error")
-        }
-
-
-    };
+    const { control, errors, onSubmit } = useLogin();
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.safeArea}>
             <KeyboardAvoidingView
-                style={{ flex: 1 }}
+                style={styles.flex}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
                 <ScrollView
-                    contentContainerStyle={AuthStyles.container}
+                    contentContainerStyle={styles.container}
                     keyboardShouldPersistTaps="handled"
-                    removeClippedSubviews={false}
                 >
-                    <View style={{ width: "100%", alignItems: "center" }}>
+                    <View style={styles.innerContainer}>
+                        <Text style={styles.title}>Welcome to Task Manager</Text>
+                        <Text style={styles.subtitle}>Login to continue</Text>
 
-                        <Text style={AuthStyles.title}>Welcome to Task Manager</Text>
-                        <Text style={AuthStyles.subtitle}>Login to continue</Text>
-
-                        {/* Email */}
+                        <Text style={styles.label}>Email Address</Text>
                         <Controller
                             control={control}
                             name="email"
-                            defaultValue=""
                             rules={{ required: "Email is required" }}
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
-                                    style={AuthStyles.input}
-                                    placeholder="Email"
+                                    style={styles.input}
+                                    placeholder="name@example.com"
                                     placeholderTextColor="#999"
-                                    keyboardType="email-address" //This is causing flicker due to keyboard behaviour in React Native Screens
+                                    keyboardType="email-address"
                                     value={value}
                                     autoCapitalize="none"
-                                    autoCorrect={false}
                                     onChangeText={onChange}
                                 />
                             )}
                         />
-                        {errors.email && (
-                            <Text style={{ color: "red", marginBottom: 10 }}>
-                                {errors.email.message}
-                            </Text>
-                        )}
+                        {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
-                        {/* Password */}
+                        <Text style={styles.label}>Password</Text>
                         <Controller
                             control={control}
                             name="password"
-                            rules={{
-                                required: "Password is required",
-                                minLength: {
-                                    value: 6,
-                                    message: "Password must be at least 6 characters",
-                                },
-                            }}
+                            rules={{ required: "Password is required" }}
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
-                                    style={AuthStyles.input}
-                                    placeholder="Password"
+                                    style={styles.input}
+                                    placeholder="Enter your password"
                                     secureTextEntry
                                     placeholderTextColor="#999"
                                     value={value}
@@ -135,35 +67,15 @@ export default function Login() {
                                 />
                             )}
                         />
-                        {errors.password && (
-                            <Text style={{ color: "red", marginBottom: 10 }}>
-                                {errors.password.message}
-                            </Text>
-                        )}
+                        {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
-                        <TouchableOpacity
-                            style={AuthStyles.button}
-                            onPress={handleSubmit(onSubmit)}
-                        >
-                            <Text style={AuthStyles.buttonText}>Login</Text>
+                        <TouchableOpacity style={styles.button} onPress={onSubmit}>
+                            <Text style={styles.buttonText}>Login</Text>
                         </TouchableOpacity>
 
-                        <Text
-                            onPress={() => router.push("/register")}
-                            style={AuthStyles.footerText}
-                        >
-                            Don't have an account?{" "}
-                            <Text style={AuthStyles.linkText}>Register</Text>
+                        <Text onPress={() => router.push("/register")} style={styles.footerText}>
+                            Don't have an account? <Text style={styles.linkText}>Register</Text>
                         </Text>
-
-                        <Text
-                            onPress={() => router.replace("/(protected)/projects")}
-                            style={AuthStyles.footerText}
-                        >
-                            Go to Projects?{" "}
-                            <Text style={AuthStyles.linkText}>Projects</Text>
-                        </Text>
-
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>

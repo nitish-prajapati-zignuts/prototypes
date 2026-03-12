@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -9,53 +9,18 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { useForm, Controller } from "react-hook-form";
-import { AddProjectScreenStyles as styles } from "@/styles/AddProject";
+import { Controller } from "react-hook-form";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { axiosInstance } from "@/utils/axiosInstance";
-import { router } from "expo-router";
-import { useToast } from "@/providers/ToastProvider";
-
-type FormData = {
-  title: string;
-  description: string;
-};
+import { AddProjectScreenStyles as styles } from "@/styles/AddProject";
+import { useAddProject } from "@/hooks/ProjectHooks/useAddProject";
 
 export default function AddProject() {
+  const { form, loading, onSubmit } = useAddProject();
+
   const {
     control,
-    handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
-
-  const [loading, setLoading] = useState(false);
-  const { showToast } = useToast()
-  const onSubmit = async (data: FormData) => {
-    try {
-      setLoading(true);
-      console.log("Submitting Project:", data);
-
-      // POST request to backend
-      const response = await axiosInstance.post("/projects/create", data);
-
-      if (response.data.success) {
-        //console.log("Project added successfully:", response.data.data);
-        // Redirect back to projects list
-        showToast("Task Created Successfully", "success")
-        router.back();
-      } else {
-
-        console.log("Failed to add project:", response.data.message);
-        showToast("Task Could Not Be Created Successfully", "error")
-
-      }
-    } catch (error) {
-      console.log("Add Project Error:", error);
-      showToast("Something Went Wrong", "error")
-    } finally {
-      setLoading(false);
-    }
-  };
+  } = form;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -75,7 +40,6 @@ export default function AddProject() {
             <Controller
               control={control}
               name="title"
-
               rules={{ required: "Title is required" }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
@@ -106,7 +70,6 @@ export default function AddProject() {
                   multiline
                   numberOfLines={4}
                   placeholderTextColor="#999"
-
                 />
               )}
             />
@@ -117,7 +80,7 @@ export default function AddProject() {
             {/* Save Button */}
             <TouchableOpacity
               style={styles.saveButton}
-              onPress={handleSubmit(onSubmit)}
+              onPress={onSubmit}
               disabled={loading}
             >
               {loading ? (
