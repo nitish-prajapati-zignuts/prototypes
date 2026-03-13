@@ -24,7 +24,8 @@ export default function ProjectIndex() {
     loadingMore,
     onRefresh,
     loadMore,
-    deleteProject
+    deleteProject,
+    user
   } = useProjectList();
 
   const renderItem = ({ item }: { item: Project }) => (
@@ -51,19 +52,21 @@ export default function ProjectIndex() {
         </TouchableOpacity>
 
         <View style={ProjectStyle.rightButtons}>
-          <TouchableOpacity
-            onPress={() => router.push({
-              pathname: "/(protected)/projects/update-project",
-              params: { id: item._id },
-            })}
-            style={ProjectStyle.iconButton}
-          >
-            <Ionicons name="create-outline" size={responsiveSize(18)} color="#fff" />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => deleteProject(item._id)} style={ProjectStyle.deleteIconButton}>
-            <Ionicons name="trash-outline" size={responsiveSize(18)} color="#fff" />
-          </TouchableOpacity>
+          {user?._id === item.userId && (
+            <TouchableOpacity
+              onPress={() => router.push({
+                pathname: "/(protected)/projects/update-project",
+                params: { id: item._id },
+              })}
+              style={ProjectStyle.iconButton}
+            >
+              <Ionicons name="create-outline" size={responsiveSize(18)} color="#fff" />
+            </TouchableOpacity>)}
+          {user?._id === item.userId && (
+            <TouchableOpacity onPress={() => deleteProject(item._id)} style={ProjectStyle.deleteIconButton}>
+              <Ionicons name="trash-outline" size={responsiveSize(18)} color="#fff" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </TouchableOpacity>

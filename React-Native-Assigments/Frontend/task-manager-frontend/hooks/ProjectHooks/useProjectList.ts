@@ -3,8 +3,10 @@ import { useFocusEffect } from "expo-router";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { useToast } from "@/providers/ToastProvider";
 import { Project, Pagination, ProjectsResponse } from "@/utils/types/ProjectTypes/project.list";
+import { useAuthStore } from "@/store/AuthStore";
 
 export const useProjectList = () => {
+    const user = useAuthStore((state) =>state.user)
     const [projects, setProjects] = useState<Project[]>([]);
     const [pagination, setPagination] = useState<Pagination>({
         total: 0,
@@ -80,5 +82,6 @@ export const useProjectList = () => {
         onRefresh,
         loadMore,
         deleteProject,
+        user
     };
 };
