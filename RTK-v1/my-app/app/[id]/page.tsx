@@ -102,7 +102,6 @@ export default function GetProductById() {
                         </div>
                     </div>
 
-                    {/* Content Section (Span 5) */}
                     <div className="lg:col-span-5 flex flex-col justify-center">
                         <div className="max-w-md">
                             {isEditing ? (
