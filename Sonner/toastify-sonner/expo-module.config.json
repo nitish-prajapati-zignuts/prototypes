@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["ToastifySonnerModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.toastifysonner.ToastifySonnerModule"]
+  }
+}

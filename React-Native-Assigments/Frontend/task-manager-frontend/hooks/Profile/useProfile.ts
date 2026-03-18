@@ -11,7 +11,7 @@ export const useProfile = () => {
     const handleLogout = async () => {
         try {
             setLoading(true);
-            await logout();
+            logout();
         } catch (error) {
             showToast("Something Went Wrong", "error");
         } finally {
