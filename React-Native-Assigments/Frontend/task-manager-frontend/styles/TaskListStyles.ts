@@ -6,14 +6,15 @@ import { Colors } from "@/constants/Colors";
 export const TaskListStyles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: responsiveSize(16),
-        backgroundColor: Colors.background, // Updated from #f5f6fa
+        paddingLeft: responsiveSize(16),
+        paddingRight: responsiveSize(16),
+        backgroundColor: Colors.white, // Updated from #f5f6fa
     },
 
     header: {
         fontSize: responsiveFont(26),
         fontWeight: "700",
-        marginBottom: responsiveSize(16),
+        marginBottom: responsiveSize(8),
         color: Colors.textContrast, // Updated from #1a1a1a
     },
 

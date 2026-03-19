@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import AuthProvider from "@/providers/AuthProviders";
 import { responsiveSize } from "@/styles/AuthStyles";
 import { Ionicons } from "@expo/vector-icons";
@@ -11,10 +12,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function TasksLayout() {
     return (
         <AuthProvider>
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>
                 <Stack>
 
-                    {/* TASK LIST */}
                     <Stack.Screen
                         name="index"
                         options={{
@@ -25,7 +25,6 @@ export default function TasksLayout() {
                         }}
                     />
 
-                    {/* CREATE TASK */}
                     <Stack.Screen
                         name="create-task"
                         options={{
@@ -34,7 +33,6 @@ export default function TasksLayout() {
                         }}
                     />
 
-                    {/* UPDATE TASK */}
                     <Stack.Screen
                         name="update-task"
                         options={{

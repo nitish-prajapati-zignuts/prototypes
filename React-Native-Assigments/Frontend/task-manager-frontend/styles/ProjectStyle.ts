@@ -8,8 +8,9 @@ export const ProjectStyle = StyleSheet.create({
     backgroundColor: Colors.backgroundGrey, // Updated from #F3F4F6
   },
   container: {
-    flex: 1,
-    padding: scale(16),
+    //flex: 1,
+    paddingLeft: scale(16),
+    paddingRight: scale(16),
     backgroundColor: Colors.backgroundGrey,
   },
 

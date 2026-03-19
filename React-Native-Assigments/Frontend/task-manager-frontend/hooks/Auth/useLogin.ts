@@ -20,16 +20,16 @@ export const useLogin = () => {
 
     const [loading, setLoading] = useState<boolean>(false)
     const setTokenFromBackend = useAuthStore((state) => state.setToken);
-    const token = useAuthStore((state) => state.token);
-    const isAuthorized = useAuthStore((state) => state.isAuthorized);
+    //const token = useAuthStore((state) => state.token);
+    //const isAuthorized = useAuthStore((state) => state.isAuthorized);
     const { showToast } = useToast();
 
     // Handle Redirection if already authorized
-    useEffect(() => {
-        if (token && isAuthorized) {
-            router.replace("/(protected)/projects");
-        }
-    }, [token, isAuthorized]);
+    // useEffect(() => {
+    //     if (token && isAuthorized) {
+    //         router.replace("/(protected)/projects");
+    //     }
+    // }, [token, isAuthorized]);
 
     const onLogin = async (data: FormData) => {
         try {

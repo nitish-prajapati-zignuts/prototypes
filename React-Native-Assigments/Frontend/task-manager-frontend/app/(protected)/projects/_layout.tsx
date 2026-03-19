@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import AuthProvider from "@/providers/AuthProviders";
 import { Stack } from "expo-router";
 
@@ -11,8 +12,8 @@ export default function ProjectLayout() {
           options={{
             headerShown: false,
             title: "Projects",
-            headerStyle: { backgroundColor: "#fff" },
-            headerTitleStyle: { color: "#111827" },
+            headerStyle: { backgroundColor: Colors.white },
+            headerTitleStyle: { color: Colors.textMain },
           }}
         />
 
@@ -22,8 +23,8 @@ export default function ProjectLayout() {
           options={{
             title: "Add Project",
             headerBackButtonDisplayMode: "default",
-            headerStyle: { backgroundColor: "#fff" },
-            headerTitleStyle: { color: "#111827" },
+            headerStyle: { backgroundColor: Colors.white },
+            headerTitleStyle: { color: Colors.textMain },
           }}
         />
 
@@ -33,8 +34,8 @@ export default function ProjectLayout() {
           options={{
             title: "Update Project",
             headerBackButtonDisplayMode: "default",
-            headerStyle: { backgroundColor: "#fff" },
-            headerTitleStyle: { color: "#111827" },
+            headerStyle: { backgroundColor: Colors.white },
+            headerTitleStyle: { color: Colors.textMain },
           }}
         />
 
@@ -44,8 +45,8 @@ export default function ProjectLayout() {
           options={{
             title: "Project Details",
             headerBackButtonDisplayMode: "default",
-            headerStyle: { backgroundColor: "#fff" },
-            headerTitleStyle: { color: "#111827" },
+            headerStyle: { backgroundColor: Colors.white },
+            headerTitleStyle: { color: Colors.textMain },
           }}
         />
       </Stack>

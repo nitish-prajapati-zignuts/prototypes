@@ -17,6 +17,7 @@ import { useProjectList } from "@/hooks/ProjectHooks/useProjectList";
 import ProjectCard from "@/components/Projects/ProjectCard";
 import ListHeader from "@/components/Projects/ListHeader";
 import EmptyState from "@/components/Projects/EmptyState";
+import { Colors } from "@/constants/Colors";
 
 export default function ProjectIndex() {
   const {
@@ -37,7 +38,7 @@ export default function ProjectIndex() {
         <ListHeader />
 
         <FlatList
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: responsiveSize(90) }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: responsiveSize(0) }}
           data={projects}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
@@ -54,7 +55,7 @@ export default function ProjectIndex() {
           onEndReachedThreshold={0.5}
           ListFooterComponent={
             loadingMore ? (
-              <ActivityIndicator size="small" color="#000" style={{ margin: 10 }} />
+              <ActivityIndicator size="small" color={Colors.backgroundAlt} style={{ margin: 10 }} />
             ) : null
           }
           ListEmptyComponent={<EmptyState loading={loading} />}
@@ -64,7 +65,7 @@ export default function ProjectIndex() {
           style={ProjectStyle.fab}
           onPress={() => router.push("/(protected)/projects/add-project")}
         >
-          <Ionicons name="add" size={responsiveSize(28)} color="#fff" />
+          <Ionicons name="add" size={responsiveSize(28)} color={Colors.white} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
