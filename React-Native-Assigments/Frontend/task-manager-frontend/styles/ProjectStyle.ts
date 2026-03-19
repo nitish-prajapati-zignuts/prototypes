@@ -1,25 +1,24 @@
 import { StyleSheet } from "react-native";
-import { scale, moderateScale, responsiveFont, PRIMARY } from "./responsive";
-
+import { scale, moderateScale, responsiveFont } from "./responsive";
+import { Colors } from "@/constants/Colors";
 
 export const ProjectStyle = StyleSheet.create({
-
   safeArea: {
     flex: 1,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: Colors.backgroundGrey, // Updated from #F3F4F6
   },
   container: {
     flex: 1,
     padding: scale(16),
-    backgroundColor: "#F3F4F6",
+    backgroundColor: Colors.backgroundGrey,
   },
 
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     padding: scale(16),
     borderRadius: moderateScale(12),
     marginBottom: scale(14),
-    shadowColor: "#000",
+    shadowColor: Colors.shadow,
     shadowOpacity: 0.08,
     shadowRadius: moderateScale(6),
     elevation: 4,
@@ -28,25 +27,25 @@ export const ProjectStyle = StyleSheet.create({
   title: {
     fontSize: responsiveFont(18),
     fontWeight: "700",
-    color: "#111827",
+    color: Colors.textMain, // Updated from #111827
   },
 
   heading: {
     fontSize: responsiveFont(24),
     fontWeight: "700",
-    //marginBottom: scale(20),
-    color: "#111827",
+    color: Colors.textMain,
   },
-  subheading:{
+
+  subheading: {
     fontSize: responsiveFont(16),
     fontWeight: "500",
     marginBottom: scale(20),
-    color: "#111827",
+    color: Colors.textMain,
   },
 
   description: {
     fontSize: responsiveFont(14),
-    color: "#6B7280",
+    color: Colors.textLight, // Updated from #6B7280
     marginTop: scale(4),
     marginBottom: scale(12),
   },
@@ -58,7 +57,7 @@ export const ProjectStyle = StyleSheet.create({
   },
 
   viewButton: {
-    backgroundColor: "#10B981",
+    backgroundColor: Colors.secondary, // Updated from #10B981
     paddingVertical: scale(8),
     paddingHorizontal: scale(12),
     borderRadius: moderateScale(8),
@@ -73,19 +72,19 @@ export const ProjectStyle = StyleSheet.create({
   },
 
   iconButton: {
-    backgroundColor: PRIMARY,
+    backgroundColor: Colors.primary, // Replaced PRIMARY variable
     padding: scale(8),
     borderRadius: moderateScale(8),
   },
 
   deleteIconButton: {
-    backgroundColor: "#EF4444",
+    backgroundColor: Colors.error, // Updated from #EF4444
     padding: scale(8),
     borderRadius: moderateScale(8),
   },
 
   buttonText: {
-    color: "#fff",
+    color: Colors.white,
     fontWeight: "600",
     fontSize: responsiveFont(13),
   },
@@ -94,14 +93,14 @@ export const ProjectStyle = StyleSheet.create({
     position: "absolute",
     bottom: scale(25),
     right: scale(25),
-    backgroundColor: PRIMARY,
+    backgroundColor: Colors.primary,
     width: scale(60),
     height: scale(60),
     borderRadius: scale(30),
     alignItems: "center",
     justifyContent: "center",
     elevation: 8,
-    shadowColor: "#000",
+    shadowColor: Colors.shadow,
     shadowOpacity: 0.3,
     shadowRadius: moderateScale(6),
   },
@@ -109,7 +108,7 @@ export const ProjectStyle = StyleSheet.create({
   empty: {
     textAlign: "center",
     marginTop: scale(40),
-    color: "#9CA3AF",
+    color: Colors.textPlaceholder, // Updated from #9CA3AF
     fontSize: responsiveFont(14),
   },
 });

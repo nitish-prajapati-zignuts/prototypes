@@ -2,19 +2,21 @@ import React from "react";
 import {
   FlatList,
   RefreshControl,
-  Text,
-  TouchableOpacity,
   View,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
-import { responsiveSize } from "@/styles/AuthStyles";
 import { ProjectStyle } from "@/styles/ProjectStyle";
-import { Project } from "@/utils/types/ProjectTypes/project.list";
+import { responsiveSize } from "@/styles/AuthStyles";
 import { useProjectList } from "@/hooks/ProjectHooks/useProjectList";
+
+import ProjectCard from "@/components/Projects/ProjectCard";
+import ListHeader from "@/components/Projects/ListHeader";
+import EmptyState from "@/components/Projects/EmptyState";
 
 export default function ProjectIndex() {
   const {
@@ -25,87 +27,37 @@ export default function ProjectIndex() {
     onRefresh,
     loadMore,
     deleteProject,
-    user
+    user,
   } = useProjectList();
-
-  const renderItem = ({ item }: { item: Project }) => (
-    <TouchableOpacity
-      style={ProjectStyle.card}
-      onPress={() => router.push({
-        pathname: "/(protected)/projects/project-details",
-        params: { id: item._id },
-      })}
-    >
-      <Text style={ProjectStyle.title}>{item.title}</Text>
-      <Text style={ProjectStyle.description}>{item.description}</Text>
-
-      <View style={ProjectStyle.buttonRow}>
-        <TouchableOpacity
-          style={ProjectStyle.viewButton}
-          onPress={() => router.push({
-            pathname: "/(protected)/tasks",
-            params: { id: item._id },
-          })}
-        >
-          <Ionicons name="list-outline" size={responsiveSize(16)} color="#fff" />
-          <Text style={ProjectStyle.buttonText}>View Tasks</Text>
-        </TouchableOpacity>
-
-        <View style={ProjectStyle.rightButtons}>
-          {user?._id === item.userId && (
-            <TouchableOpacity
-              onPress={() => router.push({
-                pathname: "/(protected)/projects/update-project",
-                params: { id: item._id },
-              })}
-              style={ProjectStyle.iconButton}
-            >
-              <Ionicons name="create-outline" size={responsiveSize(18)} color="#fff" />
-            </TouchableOpacity>)}
-          {user?._id === item.userId && (
-            <TouchableOpacity onPress={() => deleteProject(item._id)} style={ProjectStyle.deleteIconButton}>
-              <Ionicons name="trash-outline" size={responsiveSize(18)} color="#fff" />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={ProjectStyle.safeArea}>
       <View style={ProjectStyle.container}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <View>
-            <Text style={ProjectStyle.heading}>Projects</Text>
-            <Text style={ProjectStyle.subheading}>Manage your projects</Text>
-          </View>
-          <TouchableOpacity onPress={() => router.push("/(protected)/profile")}>
-            <AntDesign name="user" size={responsiveSize(24)} />
-          </TouchableOpacity>
-        </View>
+
+        <ListHeader />
 
         <FlatList
           contentContainerStyle={{ flexGrow: 1, paddingBottom: responsiveSize(90) }}
           data={projects}
           keyExtractor={(item) => item._id}
-          renderItem={renderItem}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          renderItem={({ item }) => (
+            <ProjectCard
+              item={item}
+              userId={user?._id}
+              onDelete={deleteProject}
+            />
+          )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
-          ListFooterComponent={() => loadingMore ? <ActivityIndicator size="small" color="#000" style={{ margin: 10 }} /> : null}
-          ListEmptyComponent={() => (
-            <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-              {loading ? (
-                <View style={{ alignItems: 'center' }}>
-                  <ActivityIndicator size="small" color="#000" />
-                  <Text style={{ marginTop: 8 }}>Loading your projects...</Text>
-                </View>
-              ) : (
-                <Text>No projects found.</Text>
-              )}
-            </View>
-          )}
+          ListFooterComponent={
+            loadingMore ? (
+              <ActivityIndicator size="small" color="#000" style={{ margin: 10 }} />
+            ) : null
+          }
+          ListEmptyComponent={<EmptyState loading={loading} />}
         />
 
         <TouchableOpacity

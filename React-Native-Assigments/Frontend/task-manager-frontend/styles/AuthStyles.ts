@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { Dimensions, PixelRatio, StyleSheet } from "react-native";
 
 const { width } = Dimensions.get("window");
@@ -10,7 +11,7 @@ export const AuthStyles = StyleSheet.create({
   // Structural Styles
   safeArea: {
     flex: 1,
-    backgroundColor: "#F5F7FB",
+    backgroundColor: Colors.background,
   },
   flex: {
     flex: 1,
@@ -52,16 +53,16 @@ export const AuthStyles = StyleSheet.create({
   input: {
     width: "100%",
     height: responsiveSize(48),
-    borderColor: "#e3e3f2ff",
+    borderColor: Colors.borderInput,
     borderWidth: 1,
     borderRadius: responsiveSize(8),
     marginBottom: responsiveSize(4), // Reduced to keep error text close
     paddingHorizontal: responsiveSize(12),
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.white,
     fontSize: responsiveSize(14),
   },
   errorText: {
-    color: "#EF4444",
+    color: Colors.error,
     fontSize: responsiveSize(12),
     marginBottom: responsiveSize(12),
     alignSelf: "flex-start",
@@ -71,7 +72,7 @@ export const AuthStyles = StyleSheet.create({
   button: {
     width: "100%",
     height: responsiveSize(48),
-    backgroundColor: "#4A6CF7",
+    backgroundColor: Colors.avatarBg,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: responsiveSize(8),
@@ -84,10 +85,10 @@ export const AuthStyles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.7,
-    backgroundColor: "#94A3B8",
+    backgroundColor: Colors.disabled,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: Colors.white,
     fontWeight: "bold",
     fontSize: responsiveSize(16),
   },
@@ -99,7 +100,7 @@ export const AuthStyles = StyleSheet.create({
     color: "#666",
   },
   linkText: {
-    color: "#4A6CF7",
+    color: Colors.primary,
     fontWeight: "600",
   },
 });

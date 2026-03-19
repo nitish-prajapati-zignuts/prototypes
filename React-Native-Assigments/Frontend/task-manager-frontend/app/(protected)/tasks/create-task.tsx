@@ -1,23 +1,32 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-    View, Text, TextInput, TouchableOpacity, ScrollView,
-    KeyboardAvoidingView, Platform, ActivityIndicator,
+    View,
+    Text,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
 } from "react-native";
-import { Controller } from "react-hook-form";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { Dropdown } from "react-native-element-dropdown";
 import { useLocalSearchParams } from "expo-router";
 
 import { UpdateTaskStyles as styles } from "@/styles/UpdateTaskStyles";
-import { priorityOptions, statusOptions, useCreateTask } from "@/hooks/TaskHooks/useCreateTask";
-import { responsiveSize } from "@/styles/AuthStyles";
+import {
+    useCreateTask,
+} from "@/hooks/TaskHooks/useCreateTask";
+
+import FormInput from "@/components/FormInput";
+import FormDropdown from "@/components/Tasks/FromDropDown";
+import DatePickerField from "@/components/Tasks/DatePickerField";
+import FormButton from "@/components/FormButton";
+import { priorityOptions, statusOptions } from "@/constants/DropValue";
 
 export default function CreateTasks() {
     const { projectId } = useLocalSearchParams();
     const { form, loading, allUsers, onSubmit } = useCreateTask(projectId);
-    const [showDatePicker, setShowDatePicker] = useState(false);
 
-    const { control, formState: { errors } } = form;
+    const {
+        control,
+        formState: { errors },
+    } = form;
 
     return (
         <KeyboardAvoidingView
@@ -27,159 +36,91 @@ export default function CreateTasks() {
             <ScrollView contentContainerStyle={styles.container}>
                 <Text style={styles.header}>Create Task</Text>
 
-                {/* TITLE */}
-                <Text style={styles.label}>Title</Text>
-                <Controller
+                {/* Title */}
+                <FormInput
                     control={control}
                     name="title"
+                    label="Title"
+                    placeholder="Enter task title"
                     rules={{ required: "Title is required" }}
-                    render={({ field: { onChange, value } }) => (
-                        <TextInput
-                            style={[styles.input, errors.title && styles.inputError]}
-                            placeholder="Enter task title"
-                            value={value}
-                            placeholderTextColor="#999"
-                            onChangeText={onChange}
-                        />
-                    )}
+                    errors={errors}
+                    styles={styles}
                 />
-                {errors.title && <Text style={styles.errorText}>{errors.title.message}</Text>}
 
-                {/* DESCRIPTION */}
-                <Text style={styles.label}>Description</Text>
-                <Controller
+                {/* Description */}
+                <FormInput
                     control={control}
                     name="description"
+                    label="Description"
+                    placeholder="Enter description"
                     rules={{ required: "Description is required" }}
-                    render={({ field: { onChange, value } }) => (
-                        <TextInput
-                            style={styles.input}
-                            multiline
-                            textAlignVertical="top"
-                            placeholder="Enter description"
-                            value={value}
-                            placeholderTextColor="#999"
-                            onChangeText={onChange}
-                        />
-                    )}
+                    errors={errors}
+                    multiline
+                    numberOfLines={4}
+                    styles={styles}
                 />
 
-                {/* STATUS & PRIORITY ROW */}
+                {/* Row */}
                 <View style={styles.row}>
                     <View style={{ flex: 1, marginRight: 10 }}>
-                        <Text style={styles.label}>Status</Text>
-                        <Controller
+                        <FormDropdown
                             control={control}
                             name="status"
+                            label="Status"
+                            data={statusOptions}
+                            placeholder="Select Status"
                             rules={{ required: "Status is required" }}
-                            render={({ field: { onChange, value } }) => (
-                                <Dropdown
-                                    style={styles.dropdown}
-                                    data={statusOptions}
-                                    labelField="label"
-                                    valueField="value"
-                                    placeholder="Select Status"
-                                    value={value}
-                                    onChange={(item) => onChange(item.value)}
-                                />
-                            )}
+                            errors={errors}
+                            styles={styles}
                         />
                     </View>
 
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.label}>Priority</Text>
-                        <Controller
+                        <FormDropdown
                             control={control}
                             name="priority"
+                            label="Priority"
+                            data={priorityOptions}
+                            placeholder="Select Priority"
                             rules={{ required: "Priority is required" }}
-                            render={({ field: { onChange, value } }) => (
-                                <Dropdown
-                                    style={styles.dropdown}
-                                    data={priorityOptions}
-                                    labelField="label"
-                                    valueField="value"
-                                    placeholder="Select Priority"
-                                    value={value}
-                                    onChange={(item) => onChange(item.value)}
-                                />
-                            )}
+                            errors={errors}
+                            styles={styles}
                         />
                     </View>
                 </View>
 
-                {/* ASSIGNED USER */}
-                <Text style={styles.label}>Assigned To</Text>
-                <Controller
+                {/* Assigned */}
+                <FormDropdown
                     control={control}
                     name="assignedTo"
-                    rules={{ required: "User ID required" }}
-                    render={({ field: { onChange, value } }) => (
-                        <Dropdown
-                            style={styles.dropdown}
-                            data={allUsers.map(user => ({ label: user.name, value: user._id }))}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select Assignee"
-                            value={value}
-                            onChange={(item) => onChange(item.value)}
-                        />
-                    )}
+                    label="Assigned To"
+                    data={allUsers.map((u) => ({
+                        label: u.name,
+                        value: u._id,
+                    }))}
+                    placeholder="Select Assignee"
+                    rules={{ required: "User required" }}
+                    errors={errors}
+                    styles={styles}
                 />
 
-                {/* DATE PICKER */}
-                <Text style={styles.label}>Due Date</Text>
-                <Controller
+                {/* Date */}
+                <DatePickerField
                     control={control}
                     name="dueDate"
+                    label="Due Date"
                     rules={{ required: "Due date required" }}
-                    render={({ field: { onChange, value } }) => (
-                        <>
-                            <TouchableOpacity
-                                style={[styles.input, { justifyContent: 'center' }]} // Ensure vertical alignment
-                                onPress={() => setShowDatePicker(!showDatePicker)}
-                                activeOpacity={0.7}
-                            >
-                                <Text style={{
-                                    color: value ? "#1A1A1A" : "#999", // Darker black for light mode visibility
-                                    fontSize: responsiveSize(14)
-                                }}>
-                                    {value || "Select Date"}
-                                </Text>
-                            </TouchableOpacity>
-
-                            {showDatePicker && (
-                                <DateTimePicker
-                                    value={value ? new Date(value) : new Date()}
-                                    mode="date"
-                                    style={styles.datePicker}
-                                    display={Platform.OS === "ios" ? "spinner" : "default"} // "inline" is often better for visibility on iOS
-                                    themeVariant="light" // Force light theme to prevent "Invisible" white-on-white text
-                                    onChange={(event, selectedDate) => {
-                                        // On Android, the picker closes automatically; on iOS, you might need a "Done" button
-                                        if (Platform.OS === 'android') setShowDatePicker(false);
-
-                                        if (event.type === "set" && selectedDate) {
-                                            onChange(selectedDate.toISOString().split("T")[0]);
-                                        } else {
-                                            setShowDatePicker(!showDatePicker);
-                                        }
-                                    }}
-                                />
-                            )}
-                        </>
-                    )}
+                    styles={styles}
                 />
 
-                <TouchableOpacity
-                    style={styles.button}
+                {/* Button */}
+                <FormButton
+                    title="Create Task"
+                    loading={loading}
                     onPress={onSubmit}
-                    disabled={loading}
-                >
-                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Create Task</Text>}
-                </TouchableOpacity>
+                    styles={styles}
+                />
             </ScrollView>
         </KeyboardAvoidingView>
     );
 }
-
-

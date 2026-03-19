@@ -1,38 +1,39 @@
 import { StyleSheet } from "react-native";
-import { scale,responsiveFont, PRIMARY } from "./responsive";
+import { scale, responsiveFont, PRIMARY } from "./responsive";
+import { Colors } from "@/constants/Colors";
 
 
 export const AddProjectScreenStyles = StyleSheet.create({
- safeArea:{
-  flex: 1,
-  backgroundColor: "#F9FAFB",
- },
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.backgroundAlt,
+  },
   container: {
     flex: 1,
     padding: scale(20),
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.backgroundAlt,
   },
 
   heading: {
     fontSize: responsiveFont(24),
     fontWeight: "700",
     marginBottom: scale(20),
-    color: "#111827",
+    color: Colors.textMain,
   },
 
   label: {
     fontSize: responsiveFont(14),
     fontWeight: "600",
     marginBottom: scale(6),
-    color: "#374151",
+    color: Colors.textMain,
   },
 
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: scale(10),
     padding: scale(12),
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: Colors.border,
     marginBottom: scale(10),
   },
 
@@ -42,7 +43,7 @@ export const AddProjectScreenStyles = StyleSheet.create({
   },
 
   error: {
-    color: "#EF4444",
+    color: Colors.error,
     marginBottom: scale(10),
     fontSize: responsiveFont(12),
   },

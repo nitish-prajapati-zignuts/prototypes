@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useAuthStore } from "@/store/AuthStore"
 
 const BASE_URL = "https://unvolcanic-alfonzo-nonverminous.ngrok-free.dev/api";
 
@@ -17,7 +18,6 @@ axiosInstance.interceptors.request.use(
     async (config) => {
         // Accessing state directly via getState() to avoid circular dependency/hook errors
 
-        const { useAuthStore } = await import("@/store/AuthStore")
         const token = useAuthStore.getState().token;
 
         if (token && config.headers) {

@@ -2,17 +2,16 @@ import React from "react";
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
 } from "react-native";
-import { Controller } from "react-hook-form";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AddProjectScreenStyles as styles } from "@/styles/AddProject";
 import { useAddProject } from "@/hooks/ProjectHooks/useAddProject";
+
+import FormInput from "@/components/FormInput";
+import FormButton from "@/components/FormButton";
 
 export default function AddProject() {
   const { form, loading, onSubmit } = useAddProject();
@@ -35,60 +34,34 @@ export default function AddProject() {
           <View style={styles.container}>
             <Text style={styles.heading}>Add Project</Text>
 
-            {/* Title Field */}
-            <Text style={styles.label}>Title</Text>
-            <Controller
+            <FormInput
               control={control}
               name="title"
+              label="Title"
+              placeholder="e.g. Build Task Manager App"
               rules={{ required: "Title is required" }}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  placeholder="e.g. Build Task Manager App"
-                  style={styles.input}
-                  value={value}
-                  onChangeText={onChange}
-                  placeholderTextColor="#999"
-                />
-              )}
+              errors={errors}
+              styles={styles}
             />
-            {errors.title && (
-              <Text style={styles.error}>{errors.title.message}</Text>
-            )}
 
-            {/* Description Field */}
-            <Text style={styles.label}>Description</Text>
-            <Controller
+            <FormInput
               control={control}
               name="description"
+              label="Description"
+              placeholder="e.g. This project will help manage tasks efficiently"
               rules={{ required: "Description is required" }}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  placeholder="e.g. This project will help manage tasks efficiently"
-                  style={[styles.input, styles.textArea]}
-                  value={value}
-                  onChangeText={onChange}
-                  multiline
-                  numberOfLines={4}
-                  placeholderTextColor="#999"
-                />
-              )}
+              errors={errors}
+              multiline
+              numberOfLines={4}
+              styles={styles}
             />
-            {errors.description && (
-              <Text style={styles.error}>{errors.description.message}</Text>
-            )}
 
-            {/* Save Button */}
-            <TouchableOpacity
-              style={styles.saveButton}
+            <FormButton
+              title="Save Project"
+              loading={loading}
               onPress={onSubmit}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.saveText}>Save Project</Text>
-              )}
-            </TouchableOpacity>
+              styles={styles}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

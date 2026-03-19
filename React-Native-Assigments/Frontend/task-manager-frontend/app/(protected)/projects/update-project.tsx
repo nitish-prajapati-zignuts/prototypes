@@ -2,17 +2,18 @@ import React from "react";
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
 } from "react-native";
-import { Controller } from "react-hook-form";
 import { useLocalSearchParams } from "expo-router";
+
 import { AddProjectScreenStyles as styles } from "@/styles/AddProject";
 import { useUpdateProject } from "@/hooks/ProjectHooks/useUpdateProject";
+
+import FormInput from "@/components/FormInput";
+import FormButton from "@/components/FormButton";
+import LoaderScreen from "@/components/Projects/LoaderScreen";
 
 export default function UpdateProject() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -24,11 +25,7 @@ export default function UpdateProject() {
   } = form;
 
   if (loading) {
-    return (
-      <View style={[styles.container, { justifyContent: "center", flex: 1 }]}>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
-    );
+    return <LoaderScreen styles={styles} />;
   }
 
   return (
@@ -44,52 +41,37 @@ export default function UpdateProject() {
         <View style={styles.container}>
           <Text style={styles.heading}>Update Project</Text>
 
-          <Text style={styles.label}>Project Title</Text>
-          <Controller
+          {/* Title */}
+          <FormInput
             control={control}
             name="title"
+            label="Project Title"
+            placeholder="Enter project title"
             rules={{ required: "Title is required" }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                style={styles.input}
-                placeholder="Enter project title"
-                value={value}
-                onChangeText={onChange}
-              />
-            )}
+            errors={errors}
+            styles={styles}
           />
-          {errors.title && <Text style={styles.error}>{errors.title.message}</Text>}
 
-          <Text style={styles.label}>Description</Text>
-          <Controller
+          {/* Description */}
+          <FormInput
             control={control}
             name="description"
+            label="Description"
+            placeholder="Enter project description"
             rules={{ required: "Description is required" }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="Enter project description"
-                multiline
-                value={value}
-                onChangeText={onChange}
-              />
-            )}
+            errors={errors}
+            multiline
+            numberOfLines={4}
+            styles={styles}
           />
-          {errors.description && (
-            <Text style={styles.error}>{errors.description.message}</Text>
-          )}
 
-          <TouchableOpacity
-            style={[styles.saveButton, submitting && { opacity: 0.7 }]}
+          {/* Button */}
+          <FormButton
+            title="Update Project"
+            loading={submitting}
             onPress={onSubmit}
-            disabled={submitting}
-          >
-            {submitting ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.saveText}>Update Project</Text>
-            )}
-          </TouchableOpacity>
+            styles={styles}
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

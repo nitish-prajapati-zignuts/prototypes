@@ -53,7 +53,13 @@ export default function Register() {
             <Controller
               control={control}
               name="email"
-              rules={{ required: "Email is required" }}
+              rules={{
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Enter a valid email address",
+                },
+              }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   style={styles.input}

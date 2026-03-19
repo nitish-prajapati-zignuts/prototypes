@@ -1,12 +1,13 @@
 import { StyleSheet } from "react-native";
 import { responsiveSize } from "./AuthStyles";
 import { responsiveFont } from "./responsive";
+import { Colors } from "@/constants/Colors";
 
 export const ProfileStyles = StyleSheet.create({
     container: {
         flex: 1,
         padding: responsiveSize(20),
-        backgroundColor: "#F9FAFB",
+        backgroundColor: Colors.backgroundAlt,
     },
 
     iconContainer: {
@@ -21,31 +22,38 @@ export const ProfileStyles = StyleSheet.create({
 
     label: {
         fontSize: responsiveFont(14),
-        color: "#6B7280",
+        color: Colors.textLight,
         marginBottom: responsiveSize(6),
     },
 
     input: {
         borderWidth: 1,
-        borderColor: "#E5E7EB",
+        borderColor: Colors.border,
         borderRadius: responsiveSize(10),
         padding: responsiveSize(12),
-        backgroundColor: "#F3F4F6",
+        backgroundColor: Colors.backgroundGrey,
         fontSize: responsiveFont(16),
+        color: Colors.textMain, // Added to ensure text visibility
     },
 
     logoutButton: {
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#EF4444",
+        backgroundColor: Colors.error,
         paddingVertical: responsiveSize(14),
         borderRadius: responsiveSize(10),
         marginTop: responsiveSize(40),
+        // Adding a slight shadow for depth
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
     },
 
     logoutText: {
-        color: "#fff",
+        color: Colors.white,
         fontSize: responsiveFont(16),
         marginLeft: responsiveSize(8),
         fontWeight: "600",

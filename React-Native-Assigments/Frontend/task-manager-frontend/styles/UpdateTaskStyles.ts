@@ -1,17 +1,18 @@
 import { Platform, StyleSheet } from "react-native";
 import { moderateScale, responsiveFont, scale } from "./responsive";
+import { Colors } from "@/constants/Colors";
 
 export const UpdateTaskStyles = StyleSheet.create({
     container: {
         padding: moderateScale(20),
-        backgroundColor: "#f5f6fa",
+        backgroundColor: Colors.background, // Updated from #f5f6fa
         paddingBottom: moderateScale(40),
     },
 
     header: {
         fontSize: responsiveFont(24),
         fontWeight: "800",
-        color: "#1e293b",
+        color: Colors.textMain, // Updated from #1e293b
         marginBottom: moderateScale(20),
         marginTop: Platform.OS === "ios" ? moderateScale(40) : moderateScale(10),
     },
@@ -19,7 +20,7 @@ export const UpdateTaskStyles = StyleSheet.create({
     label: {
         fontSize: responsiveFont(13),
         fontWeight: "700",
-        color: "#64748b",
+        color: Colors.textLight, // Updated from #64748b
         marginBottom: moderateScale(6),
         marginTop: moderateScale(16),
         textTransform: "uppercase",
@@ -31,40 +32,40 @@ export const UpdateTaskStyles = StyleSheet.create({
     },
 
     input: {
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
         borderRadius: moderateScale(8),
         padding: moderateScale(12),
         borderWidth: 1,
-        borderColor: "#e2e8f0",
+        borderColor: Colors.borderLight, // Updated from #e2e8f0
         fontSize: responsiveFont(16),
-        color: "#1e293b",
+        color: Colors.textMain,
     },
 
     inputError: {
-        borderColor: "#ef4444",
+        borderColor: Colors.error, // Updated from #ef4444
     },
 
     dropdownContainer: {
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
         borderRadius: moderateScale(8),
         borderWidth: 1,
-        borderColor: "#e2e8f0",
+        borderColor: Colors.borderLight,
         overflow: "hidden",
         justifyContent: "center",
     },
 
     errorText: {
-        color: "#ef4444",
+        color: Colors.error,
         fontSize: responsiveFont(12),
         marginTop: moderateScale(4),
     },
 
     button: {
-        backgroundColor: "#2563eb",
+        backgroundColor: Colors.avatarBg, // Using the primary blue action color
         paddingVertical: moderateScale(16),
         borderRadius: moderateScale(8),
         marginTop: moderateScale(32),
-        shadowColor: "#2563eb",
+        shadowColor: Colors.avatarBg,
         shadowOffset: { width: 0, height: moderateScale(4) },
         shadowOpacity: 0.2,
         shadowRadius: moderateScale(4),
@@ -72,7 +73,7 @@ export const UpdateTaskStyles = StyleSheet.create({
     },
 
     buttonText: {
-        color: "#fff",
+        color: Colors.white,
         fontWeight: "bold",
         fontSize: responsiveFont(16),
         textAlign: "center",
@@ -80,11 +81,11 @@ export const UpdateTaskStyles = StyleSheet.create({
 
     dropdown: {
         height: scale(50),
-        borderColor: "#e2e8f0",
+        borderColor: Colors.borderLight,
         borderWidth: 1,
         borderRadius: moderateScale(8),
         paddingHorizontal: moderateScale(12),
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
     },
 
     pickerContainer: {
@@ -97,40 +98,41 @@ export const UpdateTaskStyles = StyleSheet.create({
     datePicker: {
         width: "100%",
     },
+
     disabledInput: {
-        backgroundColor: "#F3F4F6",
-        color: "#9CA3AF",
+        backgroundColor: Colors.backgroundGrey, // Updated from #F3F4F6
+        color: Colors.textPlaceholder, // Updated from #9CA3AF
     },
 
     disabledDropdown: {
-        backgroundColor: "#F3F4F6",
+        backgroundColor: Colors.backgroundGrey,
         opacity: 0.7,
     },
 
     disabledButton: {
-        backgroundColor: "#9CA3AF",
+        backgroundColor: Colors.disabled, // Updated from #94A3B8
     },
+
     centerContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#f5f6fa",
+        backgroundColor: Colors.background,
         padding: moderateScale(20),
     },
 
     errorHeader: {
         fontSize: responsiveFont(18),
         fontWeight: "bold",
-        color: "#1e293b",
+        color: Colors.textMain,
         textAlign: "center",
     },
 
     errorSubtext: {
         fontSize: responsiveFont(14),
-        color: "#64748b",
+        color: Colors.textLight,
         textAlign: "center",
         marginTop: moderateScale(8),
         marginBottom: moderateScale(20),
     },
 });
-
