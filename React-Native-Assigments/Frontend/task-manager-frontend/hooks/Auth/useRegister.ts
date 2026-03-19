@@ -34,7 +34,6 @@ export const useRegister = () => {
                 showToast(response.data.message || "Registration failed", "error");
             }
         } catch (error: any) {
-            console.error("Register Error:", error);
             showToast(error?.response?.data?.message || "Something went wrong", "error");
         } finally {
             setLoading(false);

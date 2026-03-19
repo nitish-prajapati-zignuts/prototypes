@@ -15,7 +15,8 @@ import { Dropdown } from "react-native-element-dropdown";
 import { useLocalSearchParams } from "expo-router";
 
 import { UpdateTaskStyles as styles } from "@/styles/UpdateTaskStyles";
-import { useUpdateTask, statusOptions, priorityOptions } from "@/hooks/TaskHooks/useUpdateTask";
+import { useUpdateTask } from "@/hooks/TaskHooks/useUpdateTask";
+import { statusOptions, priorityOptions } from "@/constants/DropValue";
 
 export default function UpdateTask() {
     const { id } = useLocalSearchParams();

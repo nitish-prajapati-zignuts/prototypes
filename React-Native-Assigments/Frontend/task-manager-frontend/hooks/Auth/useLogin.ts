@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { router } from "expo-router";
 import { authApi } from "@/utils/axiosInstance";
@@ -18,6 +18,7 @@ export const useLogin = () => {
         }
     });
 
+    const [loading, setLoading] = useState<boolean>(false)
     const setTokenFromBackend = useAuthStore((state) => state.setToken);
     const token = useAuthStore((state) => state.token);
     const isAuthorized = useAuthStore((state) => state.isAuthorized);
@@ -32,6 +33,7 @@ export const useLogin = () => {
 
     const onLogin = async (data: FormData) => {
         try {
+            setLoading(true)
             const response = await authApi.post("/login", {
                 email: data.email,
                 password: data.password
@@ -47,6 +49,8 @@ export const useLogin = () => {
             }
         } catch (error: any) {
             showToast(error?.response?.data?.message || "Login failed", "error");
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -54,5 +58,7 @@ export const useLogin = () => {
         control,
         errors,
         onSubmit: handleSubmit(onLogin),
+        loading,
+        setLoading
     };
 };

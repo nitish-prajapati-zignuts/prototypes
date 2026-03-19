@@ -16,7 +16,8 @@ import { Dropdown } from "react-native-element-dropdown";
 import { responsiveSize } from "@/styles/AuthStyles";
 import { TaskListStyles as styles } from "@/styles/TaskListStyles";
 import { Task } from "@/utils/types/Tasks/tasks.list";
-import { useTasksList, statusOptions, priorityOptions } from "@/hooks/TaskHooks/useTaskList";
+import { useTasksList } from "@/hooks/TaskHooks/useTaskList";
+import { statusOptions, priorityOptions } from "@/constants/DropValue";
 
 export default function TasksList() {
   const { id } = useLocalSearchParams();

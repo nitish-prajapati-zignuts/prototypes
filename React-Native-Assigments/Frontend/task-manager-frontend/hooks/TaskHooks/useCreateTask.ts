@@ -5,17 +5,6 @@ import { axiosInstance } from "@/utils/axiosInstance";
 import { useToast } from "@/providers/ToastProvider";
 import { FormData, AssignedData } from "@/utils/types/Tasks/createTask.list";
 
-export const statusOptions = [
-    { label: "Todo", value: "TODO" },
-    { label: "In Progress", value: "IN_PROGRESS" },
-    { label: "Done", value: "DONE" },
-];
-
-export const priorityOptions = [
-    { label: "Low", value: "LOW" },
-    { label: "Medium", value: "MEDIUM" },
-    { label: "High", value: "HIGH" },
-];
 
 export const defaultTaskValues = {
     title: "",

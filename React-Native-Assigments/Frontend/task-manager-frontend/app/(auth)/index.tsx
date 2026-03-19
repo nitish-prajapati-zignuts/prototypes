@@ -8,6 +8,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Controller } from "react-hook-form";
@@ -16,7 +17,7 @@ import { AuthStyles as styles } from "@/styles/AuthStyles";
 import { useLogin } from "@/hooks/Auth/useLogin";
 
 export default function Login() {
-    const { control, errors, onSubmit } = useLogin();
+    const { control, errors, onSubmit, loading, setLoading } = useLogin();
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -70,7 +71,7 @@ export default function Login() {
                         {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
                         <TouchableOpacity style={styles.button} onPress={onSubmit}>
-                            <Text style={styles.buttonText}>Login</Text>
+                            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Login</Text>}
                         </TouchableOpacity>
 
                         <Text onPress={() => router.push("/register")} style={styles.footerText}>

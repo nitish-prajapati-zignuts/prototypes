@@ -3,20 +3,6 @@ import { useFocusEffect } from "expo-router";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { TasksResponse, Task } from "@/utils/types/Tasks/tasks.list";
 
-export const statusOptions = [
-    { label: "All", value: "" },
-    { label: "Todo", value: "TODO" },
-    { label: "In Progress", value: "IN_PROGRESS" },
-    { label: "Done", value: "DONE" },
-];
-
-export const priorityOptions = [
-    { label: "All", value: "" },
-    { label: "Low", value: "LOW" },
-    { label: "Medium", value: "MEDIUM" },
-    { label: "High", value: "HIGH" },
-];
-
 export const useTasksList = (projectId: string | string[] | undefined) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [refreshing, setRefreshing] = useState(false);
