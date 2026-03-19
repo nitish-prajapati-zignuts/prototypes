@@ -4,7 +4,8 @@ import { Colors } from "@/constants/Colors";
 
 export const UpdateTaskStyles = StyleSheet.create({
     container: {
-        padding: moderateScale(20),
+        paddingLeft: moderateScale(20),
+        paddingRight: moderateScale(20),
         backgroundColor: Colors.background, // Updated from #f5f6fa
         paddingBottom: moderateScale(40),
     },
@@ -81,7 +82,7 @@ export const UpdateTaskStyles = StyleSheet.create({
 
     dropdown: {
         height: scale(50),
-        borderColor: Colors.borderLight,
+        borderColor: Colors.white,
         borderWidth: 1,
         borderRadius: moderateScale(8),
         paddingHorizontal: moderateScale(12),

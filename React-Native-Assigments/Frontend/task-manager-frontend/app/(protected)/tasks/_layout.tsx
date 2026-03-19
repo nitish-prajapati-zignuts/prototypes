@@ -29,6 +29,7 @@ export default function TasksLayout() {
                         name="create-task"
                         options={{
                             title: "",
+                            headerShown: false,
                             headerBackButtonDisplayMode: "default"
                         }}
                     />
@@ -37,6 +38,7 @@ export default function TasksLayout() {
                         name="update-task"
                         options={{
                             title: "",
+                            headerShown: false,
                             headerBackButtonDisplayMode: "default"
                         }}
                     />

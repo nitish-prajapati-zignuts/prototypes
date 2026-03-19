@@ -49,15 +49,15 @@ export default function FormDropdown({
                     <Dropdown
                         style={[
                             styles.dropdown,
-                            hasError && styles.dropdownError, // ✅ error style
-                            disabled && styles.disabledDropdown, // ✅ disabled style
+                            hasError && styles.dropdownError,
+                            disabled && styles.disabledDropdown, 
                         ]}
                         data={data}
                         labelField={labelField}
                         valueField={valueField}
                         placeholder={placeholder}
                         value={value}
-                        disable={disabled} // ✅ important
+                        disable={disabled}
                         onChange={(item) => onChange(item[valueField])}
                     />
                 )}
