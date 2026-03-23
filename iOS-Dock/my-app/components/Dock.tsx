@@ -29,7 +29,13 @@ export function Dock() {
     <nav
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex h-16 items-end gap-6 rounded-3xl bg-neutral-900/80 px-6 pb-3 backdrop-blur-2xl border border-white/10 shadow-2xl"
+      className={cn(
+        "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex h-16 items-end gap-6 rounded-[24px] px-6 pb-3 transition-all duration-500",
+        // Transparency Logic: Very low opacity backgrounds + heavy blur
+        "bg-white/10 border-white/20 shadow-xl",
+        "dark:bg-black/10 dark:border-white/10 dark:border-t-white/20 dark:shadow-2xl",
+        "backdrop-blur-xl border"
+      )}
     >
       {DOCK_ITEMS.map((item) => (
         <DockItem key={item.href} item={item} mouseX={mouseX} />
@@ -49,7 +55,6 @@ function DockItem({ item, mouseX }: { item: typeof DOCK_ITEMS[0]; mouseX: Motion
     return val - bounds.x - bounds.width / 2;
   });
 
-  // Smooth magnification logic
   const scaleSync = useTransform(distance, [-150, 0, 150], [1, 1.8, 1]);
   const scale = useSpring(scaleSync, { mass: 0.1, stiffness: 150, damping: 12 });
 
@@ -61,11 +66,14 @@ function DockItem({ item, mouseX }: { item: typeof DOCK_ITEMS[0]; mouseX: Motion
       <AnimatePresence>
         {isHovered && (
           <motion.div
-            initial={{ opacity: 0, y: 0, x: "-50%" }}
-            animate={{ opacity: 1, y: -55, x: "-50%" }}
-            exit={{ opacity: 0, y: -10, x: "-50%" }}
-            // Increased text size to text-sm (14px) and added font-medium
-            className="absolute left-1/2 -top-3 px-3 py-1.5 rounded-lg bg-neutral-800/90 border border-white/10 text-white text-sm font-medium whitespace-nowrap pointer-events-none shadow-xl backdrop-blur-md"
+            initial={{ opacity: 0, y: 0, x: "-50%", scale: 0.95 }}
+            animate={{ opacity: 1, y: -55, x: "-50%", scale: 1 }}
+            exit={{ opacity: 0, y: -10, x: "-50%", scale: 0.95 }}
+            className={cn(
+              "absolute left-1/2 -top-3 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap pointer-events-none shadow-xl backdrop-blur-md border",
+              "bg-white/40 text-neutral-900 border-white/40",
+              "dark:bg-neutral-800/40 dark:text-white dark:border-white/10"
+            )}
           >
             {item.label}
           </motion.div>
@@ -80,11 +88,12 @@ function DockItem({ item, mouseX }: { item: typeof DOCK_ITEMS[0]; mouseX: Motion
       >
         <motion.div
           style={{ scale, y }}
+          whileTap={{ scale: 0.9 }}
           className={cn(
             "absolute bottom-0 flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-300 origin-bottom",
             isActive
-              ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]"
-              : "text-neutral-400 hover:text-white"
+              ? "text-black dark:text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+              : "text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white"
           )}
         >
           <item.icon className="w-8 h-8" strokeWidth={1.5} />
@@ -92,7 +101,7 @@ function DockItem({ item, mouseX }: { item: typeof DOCK_ITEMS[0]; mouseX: Motion
           {isActive && (
             <motion.div
               layoutId="active-dot"
-              className="absolute -bottom-1 w-1 h-1 bg-white rounded-full shadow-[0_0_8px_white]"
+              className="absolute -bottom-1 w-1 h-1 bg-black dark:bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]"
             />
           )}
         </motion.div>
